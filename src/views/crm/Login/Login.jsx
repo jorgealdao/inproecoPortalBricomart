@@ -38,18 +38,15 @@ const Login = (props) => {
         //Auth.signIn(username, password)
           .then(response => response.text())
           .then(user => {
-            console.log(user)
-            user = JSON.parse(user);
-            if (user.mail) {
+            user = JSON.parse(user)
+            if(user != "ERRORUSER_PASS" && (user.rolDesc == "BRICOMART_CENTRO" || user.rolDesc == "BRICOMART_CORPORATIVO")) {
+              dispatch(
+                { type: "SET_ALLOWED", payload: { isAllowed: true } }); 
               dispatch({
                 type: "SET_LOGIN",
                 payload: { token: user.mail, user: user },
               });
-              if (
-                user.rolDesc == "GESTOR"
-              )
-                dispatch({ type: "SET_ALLOWED", payload: { isAllowed: true } });   
-              props.history.push("/crm/dashboard");
+              props.history.push("/crm/nueva-venta");
             } else {
               props.history.push("/login");
             }

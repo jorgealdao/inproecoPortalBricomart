@@ -17,7 +17,10 @@ export const client = new ApolloClient({
   }),
 });
 
-// QUERIES
+// QUERIES BRICOMART
+
+// FIN QUERIES BRICOMART
+
 export const getRetiradasGestor = gql`
   query servicios($offset: Int, $limit: Int, $gestorId: String!) {
     getRetiradasView(

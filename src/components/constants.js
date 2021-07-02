@@ -4,6 +4,9 @@
 // QA
 export const API_INPRONET = "http://34.243.112.211/inproecoweb2_0";
 
+// CONSTANTES PARA BRICOMART
+
+// FIN CONSTANTES BRICOMART
 export const COLUMNS_SERVICIOS = [
   { name: "ID", title: "ID" },
   { name: "GESTOR", title: "Gestor" },
