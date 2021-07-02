@@ -58,13 +58,10 @@ import Servicios from 'views/crm/Servicios/Servicios.jsx';
 import GestionServicios from 'views/crm/Servicios/GestionServicios.jsx';
 import Facturacion from '../views/crm/Facturacion/Facturacion';
 import ServiciosFactura from '../views/crm/Facturacion/ServiciosFactura';
-
-import Login from 'views/crm/Login/Login.jsx'
-
+import FormularioNuevaVenta from '../views/crm/Ventas/FormularioNuevaVenta';
+import RegistroVentas from '../views/crm/Ventas/RegistroVentas';
 
 import Pages from 'views/blog/Page/Pages.jsx';
-import ForgottenPassword from '../views/crm/Login/ForgottenPassword';
-import SignUp from '../views/crm/Login/SignUp';
 
 var BASEDIR = process.env.REACT_APP_BASEDIR;
 
@@ -75,10 +72,10 @@ var dashRoutes = [
     /* { path: BASEDIR+"/crm/forgotten-password", name: "Forgotten Password", icon: "", badge: "", component: ForgottenPassword },
     { path: BASEDIR+"/crm/sign-up", name: "Registro", icon: "", badge: "", component: SignUp }, */
     { path: BASEDIR+"/crm/dashboard", name: "Noticias", icon: "speedometer", badge: "", component: Pages },
+    { path: BASEDIR+"/crm/nueva-venta", name: "Nueva Venta", component: FormularioNuevaVenta},
+    { path: BASEDIR+"/crm/registro-ventas", name: "Registro Ventas", component: RegistroVentas},
     { path: BASEDIR+"/crm/servicios", name: "Servicios BORRAR", component: Servicios},
     { path: BASEDIR+"/crm/gestion-servicios", name: "Gestión Servicios", component: GestionServicios},
-    { path: BASEDIR+"/crm/facturacion", name: "Facturación", component: Facturacion },
-    { path: BASEDIR+"/crm/pdf-servicios", name: "PDF SERVICIOS", component: ServiciosFactura },
 
     /* { 
         path: "#", name: "Clientes", icon: "people", type: "dropdown", parentid: "customers",
