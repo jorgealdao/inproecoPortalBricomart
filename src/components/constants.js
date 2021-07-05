@@ -6,6 +6,20 @@ export const API_INPRONET = "http://34.243.112.211/inproecoweb2_0";
 
 // CONSTANTES PARA BRICOMART
 
+export const REGISTRO_VENTAS_COLUMNS = [
+  { name: "id", title: "Código venta" },
+  { name: "zona", title: "Zona" },
+  { name: "centro", title: "Centro" },
+  { name: "nif", title: "Nif" },
+  { name: "nombre", title: "Nombre" },
+  { name: "localidad", title: "Localidad" },
+  { name: "marca", title: "Marca" },
+  { name: "modelo", title: "Modelo" },
+  { name: "referencia", title: "Referencia" },
+  { name: "estado", title: "Estado" },
+  { name: "fecha_venta", title: "Fecha compra" },
+];
+
 // FIN CONSTANTES BRICOMART
 export const COLUMNS_SERVICIOS = [
   { name: "ID", title: "ID" },

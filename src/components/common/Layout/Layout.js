@@ -27,20 +27,13 @@ import { compareDates } from "./../../constants";
 const Layout = ({
   title,
   estadosInstructions,
-  rowsStore,
   rows,
-  setRows,
   columns,
   hiddenColumnsNames,
   children,
   dataFilters,
-  setShowServiciosAsociarFactura,
-  setFacturaId,
-  setDocumentoId,
-  setFechaEmisionFactura,
-  setTotalBaseImponible,
 }) => {
-  const getRowId = (row) => row.ID;
+  const getRowId = (row) => row.id;
   const filterRowMessages = {
     filterPlaceholder: "Filtrar...",
   };
@@ -51,14 +44,6 @@ const Layout = ({
     { columnName: "FECHA_REALIZACION", compare: compareDates },
     { columnName: "FECHA_SOLICITUD", compare: compareDates },
   ]);
-
-  const RowsCount = () => {
-    return (
-      <div class="results">
-        Se han encontrado <p> {filterRows && filterRows.length} </p> resultados
-      </div>
-    );
-  };
 
   return (
     <div>
@@ -72,15 +57,6 @@ const Layout = ({
             </div>
             <div className="col-12">
               <section className="box">
-                <div class="col-md-12">
-                  <div class="form-row">
-                    <div class="pendientes__servicios">
-                      <div class="col-md-12">
-                        {estadosInstructions ? estadosInstructions : null}
-                      </div>
-                    </div>
-                  </div>
-                </div>
                 <div className="content-body">
                   <div className="row">
                     <div className="col-lg-12 card">
@@ -96,7 +72,7 @@ const Layout = ({
                           <VirtualTable />
                           <TableHeaderRow showSortingControls />
                           <Toolbar />
-                          <TableColumnVisibility
+                          {/* <TableColumnVisibility
                             hiddenColumnNames={hiddenColumnsNames}
                           />
                           <TableFilterRow
@@ -108,7 +84,7 @@ const Layout = ({
                           <ExportExcel
                             rowsToExport={!filterRows ? rows : filterRows}
                             columns={columns}
-                          />
+                          /> */}
                           {/* INICIO RECOGER LAS LÍNEAS FILTRADAS */}
                           <Template name="root">
                             <TemplateConnector>
@@ -124,22 +100,6 @@ const Layout = ({
                     </div>
                   </div>
                 </div>
-                <RowsCount />
-                <Row>
-                  <Buttons
-                    rows={rows}
-                    setRows={setRows}
-                    rowsStore={rowsStore}
-                    tableTitle={title}
-                    setShowServiciosAsociarFactura={
-                      setShowServiciosAsociarFactura
-                    }
-                    setFacturaId={setFacturaId}
-                    setDocumentoId={setDocumentoId}
-                    setFechaEmisionFactura={setFechaEmisionFactura}
-                    setTotalBaseImponible={setTotalBaseImponible}
-                  />
-                </Row>
               </section>
             </div>
           </Col>

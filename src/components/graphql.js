@@ -19,6 +19,86 @@ export const client = new ApolloClient({
 
 // QUERIES BRICOMART
 
+// queries
+export const getVentasByCentro = gql`
+  query ventas($centroId: String!) {
+    ventas_bricomart(where: { centro_id: { _eq: $centroId } }) {
+      id
+      cantidad
+      centro
+      documento_ruta
+      estado
+      fecha_venta
+      localidad
+      marca
+      modelo
+      nif
+      nombre
+      nombre_via
+      numero_serie
+      provincia
+      razon_social
+      referencia
+      tipo_gas
+      tipo_via
+      zona
+    }
+  }
+`;
+
+export const getVentasAllCentros = gql`
+  query ventas {
+    ventas_bricomart {
+      id
+      cantidad
+      centro
+      documento_ruta
+      estado
+      fecha_venta
+      localidad
+      marca
+      modelo
+      nif
+      nombre
+      nombre_via
+      numero_serie
+      provincia
+      razon_social
+      referencia
+      tipo_gas
+      tipo_via
+      zona
+    }
+  }
+`;
+
+export const getZonaName = gql`
+  query getZonaName($zonaId: String!) {
+    getZona(where: { ID: $zonaId }) {
+      nombre: NOMBRE
+    }
+  }
+`;
+
+export const getCentroName = gql`
+  query getCentroName($centroId: String!) {
+    getCentrosProductoresView(where: { ID: $centroId }) {
+      nombre: DENOMINACION
+    }
+  }
+`;
+
+// mutations
+export const insertVentaBricomart = gql`
+  mutation insert_ventas_bricomart($fields: [ventas_bricomart_insert_input!]!) {
+    insert_ventas_bricomart(objects: $fields) {
+      returning {
+        id
+      }
+    }
+  }
+`;
+
 // FIN QUERIES BRICOMART
 
 export const getRetiradasGestor = gql`
