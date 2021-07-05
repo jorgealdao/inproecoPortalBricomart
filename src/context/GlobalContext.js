@@ -44,7 +44,7 @@ const reducer = (state, action) => {
       return {
         ...state,
         token: action.payload.token,
-        user: JSON.stringify(action.payload.user),
+        user: action.payload.user,
       };
     case "SET_ALLOWED":
       sessionStorage.setItem(

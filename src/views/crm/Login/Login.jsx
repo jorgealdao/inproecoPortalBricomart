@@ -39,7 +39,7 @@ const Login = (props) => {
           .then(response => response.text())
           .then(user => {
             user = JSON.parse(user)
-            if(user != "ERRORUSER_PASS" && (user.rolDesc == "BRICOMART_CENTRO" || user.rolDesc == "BRICOMART_CORPORATIVO")) {
+            if(user != "ERRORUSER_PASS" && (user.rolDesc == "BRICOMART_CENTRO" || user.rolDesc == "BRICOMART_CORPORATIVO" || user.rolDesc == "BRICOMART_INPROECO")) {
               dispatch(
                 { type: "SET_ALLOWED", payload: { isAllowed: true } }); 
               dispatch({

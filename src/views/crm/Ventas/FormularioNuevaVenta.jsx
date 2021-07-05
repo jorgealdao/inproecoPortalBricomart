@@ -12,6 +12,19 @@ const FormularioNuevaVenta = () => {
 
     const [provincias, setProvincias] = useState()
     const [localidades, setLocalidades] = useState()
+    const [datosForm, setDatosForm] = useState({})
+
+    const onChangeNif = (e) => {
+        setDatosForm({...datosForm, nif: e.target.value})
+    }
+
+    const onChangeFullName = (e) => {
+        setDatosForm({...datosForm, fullName: e.target.value})
+    }
+
+    const onChangeRazonSocial = (e) => {
+        setDatosForm({...datosForm, razonSocial: e.target.value})
+    }
 
      const fetchProvincias = useCallback(() => {
         client
@@ -48,7 +61,6 @@ const FormularioNuevaVenta = () => {
      useEffect(() => {
         fetchProvincias()
     }, [])
-    
 
     return (
         <div>
@@ -63,6 +75,7 @@ const FormularioNuevaVenta = () => {
                                         <Label>NIF/NIE</Label>
                                         <Input
                                         type="text"
+                                        onChange={onChangeNif}
                                         />
                                     </FormGroup>
                                 </Col>
@@ -71,6 +84,7 @@ const FormularioNuevaVenta = () => {
                                         <Label>Nombre y apellidos</Label>
                                         <Input
                                         type="text"
+                                        onChange={onChangeFullName}
                                         />
                                     </FormGroup>
                                 </Col>
@@ -81,6 +95,7 @@ const FormularioNuevaVenta = () => {
                                         <Label>Razón Social</Label>
                                         <Input
                                         type="text"
+                                        onChange={onChangeRazonSocial}
                                         />
                                     </FormGroup>
                                 </Col>

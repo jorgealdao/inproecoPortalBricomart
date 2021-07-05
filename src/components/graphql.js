@@ -23,11 +23,11 @@ export const client = new ApolloClient({
 export const getProvincias = gql`
   query provincias {
     getProvincia {
-     ID
-     NOMBRE
+      ID
+      NOMBRE
     }
   }
-  `;
+`;
 
 export const getMunicipiosByProvincia = gql`
   query municipios($provinciaId: String!) {
@@ -36,7 +36,7 @@ export const getMunicipiosByProvincia = gql`
       NOMBRE
     }
   }
-  `;
+`;
 
 // queries
 export const getVentasByCentro = gql`

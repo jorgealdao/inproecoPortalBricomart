@@ -28,6 +28,7 @@ class Sidebar extends React.Component{
           profilename: 'Eric Nelson',
           profileimg: IMGDIR+'/images/profile/profile.jpg',
           profileposition: 'Web Developer',
+          user: null
         };
         this.handleOpendd = this.handleOpendd.bind(this);
         this.handlecurrent = this.handlecurrent.bind(this);
@@ -62,7 +63,7 @@ class Sidebar extends React.Component{
         return this.props.location.pathname.indexOf(routeName) > -1 ? ' active' : '';
     }
     componentDidMount(){
-
+        this.setState({user: JSON.parse(sessionStorage.getItem("user"))})
         if(this.props.admintype === 'general'){
             this.setState({     
                 profileposition: 'Web Developer',
