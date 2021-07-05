@@ -19,6 +19,25 @@ export const client = new ApolloClient({
 
 // QUERIES BRICOMART
 
+//queries Formulario Registro Nueva venta
+export const getProvincias = gql`
+  query provincias {
+    getProvincia {
+     ID
+     NOMBRE
+    }
+  }
+  `;
+
+export const getMunicipiosByProvincia = gql`
+  query municipios($provinciaId: String!) {
+    getMunicipio(where: { PROVINCIA_ID: $provinciaId }) {
+      ID
+      NOMBRE
+    }
+  }
+  `;
+
 // queries
 export const getVentasByCentro = gql`
   query ventas($centroId: String!) {
