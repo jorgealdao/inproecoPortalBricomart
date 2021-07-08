@@ -8,6 +8,10 @@ import { client, getProvincias, getMunicipiosByProvincia, getCentros, insertVent
 // constants
 import { API_INPRONET } from '../../../components/constants';
 
+// components
+import VentaSuccessModal from '../../../components/common/Modals/VentaSuccessModal';
+import VentaErrorDocumentoModal from '../../../components/common/Modals/VentaErrorDocumentoModal';
+
 const FormularioNuevaVenta = () => {
 
     const [provincias, setProvincias] = useState();
@@ -21,6 +25,18 @@ const FormularioNuevaVenta = () => {
     const [tipoDocumentos, setTipoDocumentos] = useState();
     const [uploadFiles, setUploadFiles] = useState([]);
     const [documentSavedId, setDocumentSavedId] = useState();
+
+    // MODALES
+    const [ventaSuccess, setVentaSuccess] = useState(false);
+    const [ventaErrorDocument, setVentaErrorDocument] = useState(false)
+
+    const toggleVentaSuccess = () => {
+        setVentaSuccess(!ventaSuccess)
+    }
+
+    const toggleVentaErrorDocument = () => {
+        setVentaErrorDocument(!ventaErrorDocument)
+    }
 
     const onDrop = useCallback((acceptedFiles) => {
         setNewFiles(newFiles.concat(acceptedFiles));
@@ -68,9 +84,8 @@ const FormularioNuevaVenta = () => {
           };
 
           const postDocument = await fetch(`${API_INPRONET}/core/controller/BricomartController.php`, requestOptions)
-          const resPostDocument = await postDocument.text()
-          const path = await documentPath(resPostDocument)    
-          return path
+          const resPostDocument = await postDocument.text() 
+          return resPostDocument
       }
     }
 
@@ -127,6 +142,22 @@ const FormularioNuevaVenta = () => {
         setDatosForm({...datosForm, fecha_venta: e.target.value})
     }
 
+    const onChangeMarca = (e) => {
+        setDatosForm({...datosForm, marca: e.target.value})
+    }
+
+    const onChangeModelo = (e) => {
+        setDatosForm({...datosForm, modelo: e.target.value})
+    }
+
+    const onChangeReferencia = (e) => {
+        setDatosForm({...datosForm, referencia: e.target.value})
+    }
+
+    const onChangeTipoGas = (e) => {
+        setDatosForm({...datosForm, tipo_gas: e.target.value})
+    }
+
      const fetchProvincias = useCallback(() => {
         client
             .query({
@@ -172,7 +203,7 @@ const FormularioNuevaVenta = () => {
             })
     }
 
-    const fetchZona = (centro) => {
+    /* const fetchZona = (centro) => {
         client
             .query({
                 query: getZonaByCentro,
@@ -181,7 +212,6 @@ const FormularioNuevaVenta = () => {
                 }
             })
             .then(res => {
-                console.log(res.data.getCentroProductor[0])
                 fetchZonaName(res.data.getCentroProductor[0].ZONA_ID)
             })
     }
@@ -195,24 +225,30 @@ const FormularioNuevaVenta = () => {
                 }
             })
             .then(res => {
-                console.log(res.data.getZona[0].nombre)
-                setDatosForm({...datosForm, zona: res.data.getZona[0].nombre})
+                setDatosForm({...datosForm, zona_id: id.toString(), zona: res.data.getZona[0].nombre})
             })
-    }
+    } */
 
     const onChangeCentro = (e) => {
-        fetchZona(e.target.value)
+        console.log(e.target.value, e.target.options[e.target.selectedIndex].text)
         setDatosForm({...datosForm, centro_id: e.target.value, centro: e.target.options[e.target.selectedIndex].text})
+        //fetchZona(e.target.value)
     }
 
     const setMutationString = () => {
+        //fetchZona(datosForm.centro_id)
         return JSON.stringify(datosForm);
     }
 
     const onSubmitForm = async (e) => {
         e.preventDefault();
+        console.log(JSON.parse(setMutationString()))
         let ventaId;
-        console.log(setMutationString())
+        const documentId = await saveDocuments(newFiles, fileNames)
+        if(!documentId) {
+            toggleVentaErrorDocument()
+            return
+        }
         await client
                 .mutate({
                     mutation: insertVentaBricomart,
@@ -223,14 +259,13 @@ const FormularioNuevaVenta = () => {
                 .then(res => {
                     console.log(res)
                     ventaId = res.data.insert_ventas_bricomart.returning[0].id
-                })
-        const path = await saveDocuments(newFiles, fileNames)
-        console.log(path)
-        updateRutaVentaDocumento(ventaId, path)
-
+                })        
+        const path = await documentPath(documentId)
+        const isUpdated = await updateRutaVentaDocumento(ventaId, path)
+        if(isUpdated === 1) toggleVentaSuccess()
     }
 
-    const documentPath = (id) => {
+    const documentPath = async (id) => {
         return client
                 .query({
                     query: getDocumentPath,
@@ -244,19 +279,18 @@ const FormularioNuevaVenta = () => {
                 })
     }
 
-    const updateRutaVentaDocumento = (ventaId, documentPath) => {
-        console.log(ventaId, documentPath)
-        client
-            .mutate({
-                mutation: updateDocumentPath,
-                variables: {
-                    ventaId: ventaId,
-                    documentPath: documentPath
-                }
-            })
-            .then(res => {
-                console.log(res)
-            })
+    const updateRutaVentaDocumento = async (ventaId, documentPath) => {
+        return client
+                .mutate({
+                    mutation: updateDocumentPath,
+                    variables: {
+                        ventaId: ventaId,
+                        documentPath: documentPath
+                    }
+                })
+                .then(res => {
+                    return res.data.update_ventas_bricomart.affected_rows
+                })
     }
 
      useEffect(() => {
@@ -366,11 +400,12 @@ const FormularioNuevaVenta = () => {
                                         type="select"
                                         onChange= {onChangeProvincia}
                                         >
-                                        {provincias && provincias.map(provincia=>{ 
-                                            return (
-                                            <option key={provincia.ID} value={provincia.ID} >{provincia.NOMBRE}</option>
-                                            )
-                                        })}
+                                            <option disabled selected defaultValue> -- Seleccionar -- </option>
+                                            {provincias && provincias.map(provincia=>{ 
+                                                return (
+                                                <option key={provincia.ID} value={provincia.ID} >{provincia.NOMBRE}</option>
+                                                )
+                                            })}
                                         </Input>
                                     </FormGroup>
                                 </Col>
@@ -381,45 +416,32 @@ const FormularioNuevaVenta = () => {
                                         type="select"
                                         onChange={onChangeMunicipio}
                                         >
-                                        {localidades && localidades.map(localidad=>{ 
-                                            return (
-                                            <option key={localidad.ID} value={localidad.ID} >{localidad.NOMBRE}</option>
-                                            )
-                                        })}
+                                            <option disabled selected defaultValue> -- Seleccionar -- </option>
+                                            {localidades && localidades.map(localidad=>{ 
+                                                return (
+                                                <option key={localidad.ID} value={localidad.ID} >{localidad.NOMBRE}</option>
+                                                )
+                                            })}
                                         </Input>
                                     </FormGroup>
                                 </Col>
                             </Row>
                             <Row form>
-                                <Col md={3}>
+                                <Col md={6}>
                                     <FormGroup>
                                         <Label>Marca</Label>
                                         <Input
-                                        type="select"
-                                        />
-                                    </FormGroup>
-                                </Col>
-                                <Col md={3}>
-                                    <FormGroup>
-                                        <Label>Marca Seleccionada</Label>
-                                        <Input
                                         type="text"
+                                        onChange={onChangeMarca}
                                         />
                                     </FormGroup>
                                 </Col>
-                                <Col md={3}>
+                                <Col md={6}>
                                     <FormGroup>
                                         <Label>Modelo</Label>
                                         <Input
-                                        type="select"
-                                        />
-                                    </FormGroup>
-                                </Col>
-                                <Col md={3}>
-                                    <FormGroup>
-                                        <Label>Modelo Seleccionado</Label>
-                                        <Input
                                         type="text"
+                                        onChange={onChangeModelo}
                                         />
                                     </FormGroup>
                                 </Col>
@@ -430,6 +452,7 @@ const FormularioNuevaVenta = () => {
                                         <Label>Referencia</Label>
                                         <Input
                                         type="text"
+                                        onChange={onChangeReferencia}
                                         />
                                     </FormGroup>
                                 </Col>
@@ -456,6 +479,7 @@ const FormularioNuevaVenta = () => {
                                         <Label>Tipo Gas</Label>
                                         <Input
                                         type="text"
+                                        onChange={onChangeTipoGas}
                                         />
                                     </FormGroup>
                                 </Col>
@@ -478,6 +502,7 @@ const FormularioNuevaVenta = () => {
                                         type="select"
                                         onChange={onChangeCentro}
                                         >
+                                            <option disabled selected defaultValue> -- Seleccionar -- </option>
                                             {centros && centros.map(centro=>{ 
                                                 return (
                                                 <option key={centro.ID} value={centro.ID} >{centro.DENOMINACION}</option>
@@ -561,6 +586,15 @@ const FormularioNuevaVenta = () => {
                     </div>
                 </section>
             </div>
+            {/* MODALES */}
+            {ventaSuccess ? (
+                    <VentaSuccessModal ventaSuccess={ventaSuccess} toggle={toggleVentaSuccess} />
+                ) : (<></>)
+            }
+            {ventaErrorDocument ? (
+                    <VentaErrorDocumentoModal ventaErrorDocument={ventaErrorDocument} toggle={toggleVentaErrorDocument} />
+                ) : (<></>)
+            }
         </div>
     )
 }

@@ -8,7 +8,6 @@ export const API_INPRONET = "http://34.243.112.211/inproecoweb2_0";
 
 export const REGISTRO_VENTAS_COLUMNS = [
   { name: "id", title: "Código venta" },
-  { name: "zona", title: "Zona" },
   { name: "centro", title: "Centro" },
   { name: "nif", title: "Nif" },
   { name: "nombre", title: "Nombre" },

@@ -95,7 +95,6 @@ export const getVentasAllCentros = gql`
       referencia
       tipo_gas
       tipo_via
-      zona
     }
   }
 `;
