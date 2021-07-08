@@ -38,6 +38,15 @@ export const getMunicipiosByProvincia = gql`
   }
 `;
 
+export const getCentros = gql`
+  query centros {
+    getCentroProductor(where: { CLIENTE_ID: "24" }) {
+      ID
+      DENOMINACION
+    }
+  }
+`;
+
 // queries
 export const getVentasByCentro = gql`
   query ventas($centroId: String!) {
@@ -87,6 +96,14 @@ export const getVentasAllCentros = gql`
       tipo_gas
       tipo_via
       zona
+    }
+  }
+`;
+
+export const getZonaByCentro = gql`
+  query zona($centroId: String!) {
+    getCentroProductor(where: { ID: $centroId }) {
+      ZONA_ID
     }
   }
 `;

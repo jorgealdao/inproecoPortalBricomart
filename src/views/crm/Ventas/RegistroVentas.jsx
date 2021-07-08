@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useContext } from 'react';
+import { FilteringState, IntegratedFiltering } from "@devexpress/dx-react-grid";
 
 //constants
 import { REGISTRO_VENTAS_COLUMNS } from '../../../components/constants';
@@ -19,13 +20,11 @@ const RegistroVentas = () => {
     const [ventas, setVentas] = useState(null)
 
     const fetchVentas = () => {
-        console.log(user)
         if(user.rolDesc === "BRICOMART_CENTRO") fetchVentasRoleCentro()
         else fetchVentasRoleCorporativo()
     }
 
     const fetchVentasRoleCentro = useCallback(() => {
-        console.log('centro')
         client
             .query({
                 query: getVentasByCentro,
@@ -40,7 +39,6 @@ const RegistroVentas = () => {
     }, [client, getVentasByCentro])
 
     const fetchVentasRoleCorporativo = useCallback(() => {
-        console.log('corporativo')
         client
             .query({
                 query: getVentasAllCentros,
@@ -52,7 +50,6 @@ const RegistroVentas = () => {
     }, [client, getVentasAllCentros])
 
     useEffect(() => {
-        console.log(user.rolDesc)
         fetchVentas()
     }, [])
 
@@ -63,6 +60,8 @@ const RegistroVentas = () => {
             setRows={setVentas}
             columns={columns}
         >
+            <FilteringState defaultFilters={[]} />
+            <IntegratedFiltering />
         </Layout>
     )
 }

@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 import { Row, Col } from "reactstrap";
-import { IntegratedSorting, SortingState } from "@devexpress/dx-react-grid";
+import {
+  IntegratedSorting,
+  SortingState,
+  SearchState,
+} from "@devexpress/dx-react-grid";
+import { SearchPanel } from "@devexpress/dx-react-grid-bootstrap4";
 import {
   Grid,
   TableHeaderRow,
@@ -24,15 +29,7 @@ import FilterCell from "../../common/Filters/FilterCell";
 // CONSTANTS
 import { compareDates } from "./../../constants";
 
-const Layout = ({
-  title,
-  estadosInstructions,
-  rows,
-  columns,
-  hiddenColumnsNames,
-  children,
-  dataFilters,
-}) => {
+const Layout = ({ title, rows, columns, children, dataFilters }) => {
   const getRowId = (row) => row.id;
   const filterRowMessages = {
     filterPlaceholder: "Filtrar...",
@@ -41,8 +38,7 @@ const Layout = ({
 
   // SORTING DE FECHAS
   const [integratedSortingColumnExtensions] = useState([
-    { columnName: "FECHA_REALIZACION", compare: compareDates },
-    { columnName: "FECHA_SOLICITUD", compare: compareDates },
+    { columnName: "fecha_venta", compare: compareDates },
   ]);
 
   return (
@@ -64,6 +60,7 @@ const Layout = ({
                         <p>Cargando...</p>
                       ) : (
                         <Grid rows={rows} columns={columns} getRowId={getRowId}>
+                          <SearchState />
                           <SortingState />
                           <IntegratedSorting
                             columnExtensions={integratedSortingColumnExtensions}
@@ -75,16 +72,20 @@ const Layout = ({
                           {/* <TableColumnVisibility
                             hiddenColumnNames={hiddenColumnsNames}
                           />
-                          <TableFilterRow
+                          */}
+                          {/* <TableFilterRow
                             messages={filterRowMessages}
                             cellComponent={(props) => (
                               <FilterCell {...props} {...dataFilters} />
                             )}
+                          /> */}
+                          <SearchPanel
+                            messages={{ searchPlaceholder: "Buscar..." }}
                           />
                           <ExportExcel
                             rowsToExport={!filterRows ? rows : filterRows}
                             columns={columns}
-                          /> */}
+                          />
                           {/* INICIO RECOGER LAS LÍNEAS FILTRADAS */}
                           <Template name="root">
                             <TemplateConnector>

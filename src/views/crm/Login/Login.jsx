@@ -46,7 +46,8 @@ const Login = (props) => {
                 type: "SET_LOGIN",
                 payload: { token: user.mail, user: user },
               });
-              props.history.push("/crm/nueva-venta");
+              if(user.rolDesc == "BRICOMART_INPROECO") props.history.push("/crm/nueva-venta");
+              else props.history.push("/crm/registro-ventas");           
             } else {
               props.history.push("/login");
             }

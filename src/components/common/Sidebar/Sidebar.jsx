@@ -28,7 +28,7 @@ class Sidebar extends React.Component{
           profilename: 'Eric Nelson',
           profileimg: IMGDIR+'/images/profile/profile.jpg',
           profileposition: 'Web Developer',
-          user: null
+          user: JSON.parse(sessionStorage.getItem("user"))
         };
         this.handleOpendd = this.handleOpendd.bind(this);
         this.handlecurrent = this.handlecurrent.bind(this);
@@ -63,7 +63,7 @@ class Sidebar extends React.Component{
         return this.props.location.pathname.indexOf(routeName) > -1 ? ' active' : '';
     }
     componentDidMount(){
-        this.setState({user: JSON.parse(sessionStorage.getItem("user"))})
+        //this.setState({user: JSON.parse(sessionStorage.getItem("user"))})
         if(this.props.admintype === 'general'){
             this.setState({     
                 profileposition: 'Web Developer',
@@ -217,15 +217,27 @@ class Sidebar extends React.Component{
                     <Nav className="navigation">
                         {
                             this.props.routes.map((prop,key) => {
+                                console.log(this.props.routes, this.state.user)
                                 if(prop.redirect)
                                     return null;
                                 if(prop.type === "child")
                                     return null;
-                                if(prop.type === "navgroup")
+                                if(prop.type === "navgroup") {
+                                    if(this.state.user.rolDesc === "BRICOMART_INPROECO") {
+                                        return ( 
+                                            <Navmenugroup name={prop.name} key={key}>
+                                            </Navmenugroup>
+                                          );
+                                    } /* else {
+                                        
+                                        
+                                    }
                                     return ( 
-                                      <Navmenugroup name={prop.name} key={key}>
-                                      </Navmenugroup>
-                                    );
+                                        <Navmenugroup name={prop.name} key={key}>
+                                        </Navmenugroup>
+                                      ); */
+                                }
+                                    
                                 if(prop.type === "dropdown")
                                     return ( 
 
@@ -246,15 +258,32 @@ class Sidebar extends React.Component{
                                       <Navmenudropdown name={prop.name} icon={prop.icon} path={prop.path} badge={prop.badge} child={prop.child} key={key} openclass={this.state.opendd === prop.name ? 'activethis': ''}  onClick={() => this.handleOpendd(prop.name)}>
                                       </Navmenudropdown>
                                     );
-                                return (
-                                    <li className={this.activeRoute(prop.path) + ' nav-parent '} key={key} onClick={() => this.handleOpendd(prop.name)}>
-                                        <NavLink to={prop.path} className="nav-link" activeClassName="active">
-                                            <i className={"i-"+prop.icon}></i>
-                                            <p>{prop.name}</p>
-                                            <span className="badge">{prop.badge}</span>
-                                        </NavLink>
-                                  </li>
-                                );
+
+                                if(this.state.user.rolDesc === "BRICOMART_INPROECO") {
+                                    return (
+                                        <li className={this.activeRoute(prop.path) + ' nav-parent '} key={key} onClick={() => this.handleOpendd(prop.name)}>
+                                            <NavLink to={prop.path} className="nav-link" activeClassName="active">
+                                                <i className={"i-"+prop.icon}></i>
+                                                <p>{prop.name}</p>
+                                                <span className="badge">{prop.badge}</span>
+                                            </NavLink>
+                                      </li>
+                                    );
+                                } else {
+                                    if(prop.name === "Nueva Venta"){
+                                        return
+                                    } else {
+                                        return (
+                                            <li className={this.activeRoute(prop.path) + ' nav-parent '} key={key} onClick={() => this.handleOpendd(prop.name)}>
+                                                <NavLink to={prop.path} className="nav-link" activeClassName="active">
+                                                    <i className={"i-"+prop.icon}></i>
+                                                    <p>{prop.name}</p>
+                                                    <span className="badge">{prop.badge}</span>
+                                                </NavLink>
+                                          </li>
+                                        );
+                                    }
+                                }  
                             })
 
                         }

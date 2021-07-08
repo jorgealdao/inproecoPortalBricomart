@@ -1,67 +1,11 @@
-import General from 'views/general/Dashboard/General.jsx';
-import Hospital from 'views/hospital/Dashboard/Hospital.jsx';
-import Music from 'views/music/Dashboard/Music.jsx';
-import Crm from 'views/crm/Dashboard/Crm.jsx';
-import Social from 'views/social/Dashboard/Social.jsx';
-import Freelance from 'views/freelance/Dashboard/Freelance.jsx';
-import University from 'views/university/Dashboard/University.jsx';
-import Ecommerce from 'views/ecommerce/Dashboard/Ecommerce.jsx';
-import Blog from 'views/blog/Dashboard/Blog.jsx';
-
-import Lead from 'views/crm/Lead/Lead.jsx';
-import AddLead from 'views/crm/Lead/AddLead.jsx';
-import EditLead from 'views/crm/Lead/EditLead.jsx';
-
-import Vendor from 'views/crm/Vendor/Vendor.jsx';
-import AddVendor from 'views/crm/Vendor/AddVendor.jsx';
-import EditVendor from 'views/crm/Vendor/EditVendor.jsx';
-
-import Contact from 'views/crm/Contact/Contact.jsx';
-import AddContact from 'views/crm/Contact/AddContact.jsx';
-import EditContact from 'views/crm/Contact/EditContact.jsx';
-
-import User from 'views/crm/User/User.jsx';
-import AddUser from 'views/crm/User/AddUser.jsx';
-import EditUser from 'views/crm/User/EditUser.jsx';
-
-import Customer from 'views/crm/Customer/Customer.jsx';
-import AddCustomer from 'views/crm/Customer/AddCustomer.jsx';
-import EditCustomer from 'views/crm/Customer/EditCustomer.jsx';
-
-
-import Quote from 'views/crm/Quote/Quote.jsx';
-import AddQuote from 'views/crm/Quote/AddQuote.jsx';
-import EditQuote from 'views/crm/Quote/EditQuote.jsx';
-
-import Invoice from 'views/crm/Invoice/Invoice.jsx';
-import AddInvoice from 'views/crm/Invoice/AddInvoice.jsx';
-import EditInvoice from 'views/crm/Invoice/EditInvoice.jsx';
-
-
-import Ticket from 'views/crm/Ticket/Ticket.jsx';
-import AddTicket from 'views/crm/Ticket/AddTicket.jsx';
-import EditTicket from 'views/crm/Ticket/EditTicket.jsx';
-
-import CrmMailinbox from 'views/crm/Mail/Inbox.jsx';
-import CrmMailcompose from 'views/crm/Mail/Compose.jsx';
-import CrmMailview from 'views/crm/Mail/View.jsx';
-
-import CrmEvents from 'views/crm/Events/CrmEvents.jsx';
-import AddEvent from 'views/crm/Events/AddEvent.jsx';
-
-import CrmReportsSales from 'views/crm/Reports/ReportsSales.jsx'; 
-import CrmReportsCustomers from 'views/crm/Reports/ReportsCustomers.jsx'; 
-import CrmReportsTargets from 'views/crm/Reports/ReportsTargets.jsx'; 
-import CrmReportsVendors from 'views/crm/Reports/ReportsVendors.jsx'; 
-
 import Servicios from 'views/crm/Servicios/Servicios.jsx';
 import GestionServicios from 'views/crm/Servicios/GestionServicios.jsx';
-import Facturacion from '../views/crm/Facturacion/Facturacion';
-import ServiciosFactura from '../views/crm/Facturacion/ServiciosFactura';
 import FormularioNuevaVenta from '../views/crm/Ventas/FormularioNuevaVenta';
 import RegistroVentas from '../views/crm/Ventas/RegistroVentas';
-
 import Pages from 'views/blog/Page/Pages.jsx';
+
+/* import { GlobalStateContext } from '../context/GlobalContext';
+console.log(GlobalStateContext) */
 
 var BASEDIR = process.env.REACT_APP_BASEDIR;
 

@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback, useContext } from 'react'
 import { Col, Row, Form, FormGroup, Label, Input,  Button } from "reactstrap";
+import Dropzone from "react-dropzone";
 
 //graphql
-import { client, getProvincias, getMunicipiosByProvincia } from '../../../components/graphql';
+import { client, getProvincias, getMunicipiosByProvincia, getCentros, insertVentaBricomart, getZonaByCentro, getZonaName } from '../../../components/graphql';
 
 // context
 import { GlobalStateContext } from "../../../context/GlobalContext";
@@ -12,18 +13,92 @@ const FormularioNuevaVenta = () => {
 
     const [provincias, setProvincias] = useState()
     const [localidades, setLocalidades] = useState()
+    const [centros, setCentros] = useState()
     const [datosForm, setDatosForm] = useState({})
+
+      // ESTADOS PARA DOCUMENTOS
+    const [fileNames, setFileNames] = useState([]);
+    const [newFiles, setNewFiles] = useState([]);
+    const [tipoDocumentos, setTipoDocumentos] = useState();
+    const [uploadFiles, setUploadFiles] = useState([]);
+
+    const onDrop = useCallback((acceptedFiles) => {
+        setNewFiles(newFiles.concat(acceptedFiles));
+        let newFileNames = [];
+        acceptedFiles.forEach((file) => {
+          newFileNames.push({
+            NOMBRE: file.name,
+            RUTA: "",
+            TIPO_DOCUMENTO_ID: "",
+            IS_NEW: true,
+          });
+        });
+        const files = fileNames.concat(newFileNames);
+        setFileNames(files);
+        setUploadFiles(acceptedFiles);
+      });
+
+    const changeType = (event) => {
+    const selectedFiles = fileNames.map((fileName) => {
+        if (fileName.NOMBRE === event.target.name) {
+        fileName.TIPO_DOCUMENTO_ID = event.target.value;
+        }
+        return fileName;
+    });
+    setFileNames(selectedFiles);
+    };
+
+    const quitarDocumento = (name) => {
+    setNewFiles(newFiles.filter((item) => item.name !== name.NOMBRE));
+    setFileNames(fileNames.filter((item) => item !== name));
+    };
 
     const onChangeNif = (e) => {
         setDatosForm({...datosForm, nif: e.target.value})
     }
 
     const onChangeFullName = (e) => {
-        setDatosForm({...datosForm, fullName: e.target.value})
+        setDatosForm({...datosForm, nombre: e.target.value})
     }
 
     const onChangeRazonSocial = (e) => {
-        setDatosForm({...datosForm, razonSocial: e.target.value})
+        setDatosForm({...datosForm, razon_social: e.target.value})
+    }
+
+    const onChangeTipoVia = (e) => {
+        setDatosForm({...datosForm, tipo_via: e.target.value})
+    }
+
+    const onChangeNombreVia = (e) => {
+        setDatosForm({...datosForm, nombre_via: e.target.value})
+    }
+
+    const onChangeNumero = (e) => {
+        setDatosForm({...datosForm, numero: e.target.value})
+    }
+
+    const onChangePiso = (e) => {
+        setDatosForm({...datosForm, piso: e.target.value})
+    }
+
+    const onChangePuerta = (e) => {
+        setDatosForm({...datosForm, puerta: e.target.value})
+    }
+
+    const onChangeCodigoPostal = (e) => {
+        setDatosForm({...datosForm, codigo_postal: e.target.value})
+    }
+
+    const onChangeNumeroSerie = (e) => {
+        setDatosForm({...datosForm, numero_serie: e.target.value})
+    }
+
+    const onChangeCantidad = (e) => {
+        setDatosForm({...datosForm, cantidad: e.target.value})
+    }
+
+    const onChangeFechaVenta = (e) => {
+        setDatosForm({...datosForm, fecha_venta: e.target.value})
     }
 
      const fetchProvincias = useCallback(() => {
@@ -32,12 +107,12 @@ const FormularioNuevaVenta = () => {
                 query: getProvincias,
             })
             .then(res => {
-                /* console.log(res.data.getProvincia) */
                 setProvincias(res.data.getProvincia)
             })
     }, [client, getProvincias])
 
     const onChangeProvincia = (e) => {
+        setDatosForm({...datosForm, provincia: e.target.options[e.target.selectedIndex].text})
         if(e.target.value) {
             fetchLocalidades(e.target.value)
         }
@@ -53,13 +128,79 @@ const FormularioNuevaVenta = () => {
                 }
             })
             .then(res => {
-                /* console.log(res) */
                 setLocalidades(res.data.getMunicipio)
             })
     }, [client,getMunicipiosByProvincia])
 
+    const onChangeMunicipio = (e) => {
+        setDatosForm({...datosForm, localidad: e.target.options[e.target.selectedIndex].text})
+    };
+
+    const fetchCentros = () => {
+        client
+            .query({
+                query: getCentros
+            })
+            .then(res => {
+                setCentros(res.data.getCentroProductor)
+            })
+    }
+
+    const fetchZona = (centro) => {
+        client
+            .query({
+                query: getZonaByCentro,
+                variables: {
+                    centroId: centro
+                }
+            })
+            .then(res => {
+                console.log(res.data.getCentroProductor[0])
+                fetchZonaName(res.data.getCentroProductor[0].ZONA_ID)
+            })
+    }
+
+    const fetchZonaName = (id) => {
+        client
+            .query({
+                query: getZonaName,
+                variables: {
+                    zonaId: id.toString()
+                }
+            })
+            .then(res => {
+                console.log(res.data.getZona[0].nombre)
+                setDatosForm({...datosForm, zona: res.data.getZona[0].nombre})
+            })
+    }
+
+    const onChangeCentro = (e) => {
+        fetchZona(e.target.value)
+        setDatosForm({...datosForm, centro_id: e.target.value, centro: e.target.options[e.target.selectedIndex].text})
+    }
+
+    const setMutationString = () => {
+        return JSON.stringify(datosForm);
+    }
+
+    const onSubmitForm = (e) => {
+        e.preventDefault();
+        console.log(setMutationString())
+        client
+            .mutate({
+                mutation: insertVentaBricomart,
+                variables: {
+                    fields: JSON.parse(setMutationString())
+                }
+            })
+            .then(res => {
+                console.log(res)
+            })
+    }
+
      useEffect(() => {
         fetchProvincias()
+        fetchCentros()
     }, [])
 
     return (
@@ -68,7 +209,7 @@ const FormularioNuevaVenta = () => {
                 <section className="box">
                     <div className= "content-body">
                         <h2>Registro Nueva Venta</h2>
-                        <Form>
+                        <Form onSubmit={onSubmitForm}>
                             <Row form>
                                 <Col md={5}>
                                     <FormGroup>
@@ -106,6 +247,7 @@ const FormularioNuevaVenta = () => {
                                         <Label>Tipo de Vía</Label>
                                         <Input
                                         type="text"
+                                        onChange={onChangeTipoVia}
                                         />
                                     </FormGroup>
                                 </Col>
@@ -114,6 +256,7 @@ const FormularioNuevaVenta = () => {
                                         <Label>Nombre Vía</Label>
                                         <Input
                                         type="text"
+                                        onChange={onChangeNombreVia}
                                         />
                                     </FormGroup>
                                 </Col>
@@ -122,6 +265,7 @@ const FormularioNuevaVenta = () => {
                                         <Label>Número</Label>
                                         <Input
                                         type="text"
+                                        onChange={onChangeNumero}
                                         />
                                     </FormGroup>
                                 </Col>
@@ -130,6 +274,7 @@ const FormularioNuevaVenta = () => {
                                         <Label>Piso</Label>
                                         <Input
                                         type="text"
+                                        onChange={onChangePiso}
                                         />
                                     </FormGroup>
                                 </Col>
@@ -138,6 +283,7 @@ const FormularioNuevaVenta = () => {
                                         <Label>Puerta</Label>
                                         <Input
                                         type="text"
+                                        onChange={onChangePuerta}
                                         />
                                     </FormGroup>
                                 </Col>
@@ -146,6 +292,7 @@ const FormularioNuevaVenta = () => {
                                         <Label>Código Postal</Label>
                                         <Input
                                         type="text"
+                                        onChange={onChangeCodigoPostal}
                                         />
                                     </FormGroup>
                                 </Col>
@@ -170,7 +317,9 @@ const FormularioNuevaVenta = () => {
                                     <FormGroup>
                                         <Label>Localidad</Label>
                                         <Input
-                                        type="select">
+                                        type="select"
+                                        onChange={onChangeMunicipio}
+                                        >
                                         {localidades && localidades.map(localidad=>{ 
                                             return (
                                             <option key={localidad.ID} value={localidad.ID} >{localidad.NOMBRE}</option>
@@ -228,6 +377,7 @@ const FormularioNuevaVenta = () => {
                                         <Label>Número de Serie</Label>
                                         <Input
                                         type="text"
+                                        onChange={onChangeNumeroSerie}
                                         />
                                     </FormGroup>
                                 </Col>
@@ -235,7 +385,8 @@ const FormularioNuevaVenta = () => {
                                     <FormGroup>
                                         <Label>Cantidad</Label>
                                         <Input
-                                        type="text"
+                                        type="number"
+                                        onChange={onChangeCantidad}
                                         />
                                     </FormGroup>
                                 </Col>
@@ -255,6 +406,7 @@ const FormularioNuevaVenta = () => {
                                         <Input
                                         type="date"
                                         placeholder="date placeholder"
+                                        onChange={onChangeFechaVenta}
                                         />
                                     </FormGroup>
                                 </Col>
@@ -263,13 +415,83 @@ const FormularioNuevaVenta = () => {
                                         <Label>Tienda</Label>
                                         <Input
                                         type="select"
-                                        />
+                                        onChange={onChangeCentro}
+                                        >
+                                            {centros && centros.map(centro=>{ 
+                                                return (
+                                                <option key={centro.ID} value={centro.ID} >{centro.DENOMINACION}</option>
+                                                )
+                                            })}
+                                        </Input>
                                     </FormGroup>
+                                </Col>
+                                <Col md={4}>
+                                <Label>Añadir documento:</Label>
+                                    <Dropzone onDrop={onDrop}>
+                                    {({
+                                        getRootProps,
+                                        getInputProps,
+                                        isDragActive,
+                                        isDragAccept,
+                                        isDragReject,
+                                    }) => {
+                                        const additionalClass = isDragAccept
+                                        ? "accept"
+                                        : isDragReject
+                                        ? "reject"
+                                        : "";
+
+                                        return (
+                                        <div
+                                            {...getRootProps({
+                                            className: `dropzone ${additionalClass}`,
+                                            })}
+                                        >
+                                            <input {...getInputProps()} />
+                                            <span>{isDragActive ? "📂" : "📁"}</span>
+                                        </div>
+                                        );
+                                    }}
+                                    </Dropzone>
+                                    <div>
+                                    {fileNames.length > 0 ? <strong>Documentos:</strong> : <></>}
+                                    <ul>
+                                        {fileNames.map((fileName) => (
+                                        <li key={fileName.NOMBRE}>
+                                            <span className="filename-list">{fileName.NOMBRE}</span>
+                                            {/* {fileName.IS_NEW ? (
+                                            <select
+                                                name={fileName.NOMBRE}
+                                                value={fileName.TIPO_DOCUMENTO_ID}
+                                                style={{ width: "280px" }}
+                                                onChange={changeType}
+                                            >
+                                                {tipoDocumentos.map(({ ID, nombre }) => (
+                                                <option key={ID} value={ID}>
+                                                    {nombre}
+                                                </option>
+                                                ))}
+                                            </select>
+                                            ) : (
+                                            <button>{fileName.TIPO_DOCUMENTO[0].NOMBRE}</button>
+                                            )} */}
+                                            {fileName.IS_NEW && (
+                                            <span
+                                                className="delete-document"
+                                                onClick={() => quitarDocumento(fileName)}
+                                            >
+                                                <Button color="danger">Eliminar</Button>
+                                            </span>
+                                            )}
+                                        </li>
+                                        ))}
+                                    </ul>
+                                    </div>
                                 </Col>
                             </Row>
                             <Row form> 
                                 <Col md={2}>
-                                    <Button color="primary" >
+                                    <Button color="primary" type="submit">
                                             Guardar 
                                     </Button>
                                 </Col>
