@@ -3,24 +3,24 @@ import { Col, Row, Form, FormGroup, Label, Input,  Button } from "reactstrap";
 import Dropzone from "react-dropzone";
 
 //graphql
-import { client, getProvincias, getMunicipiosByProvincia, getCentros, insertVentaBricomart, getZonaByCentro, getZonaName } from '../../../components/graphql';
+import { client, getProvincias, getMunicipiosByProvincia, getCentros, insertVentaBricomart, getZonaByCentro, getZonaName, getDocumentPath, updateDocumentPath } from '../../../components/graphql';
 
-// context
-import { GlobalStateContext } from "../../../context/GlobalContext";
-
+// constants
+import { API_INPRONET } from '../../../components/constants';
 
 const FormularioNuevaVenta = () => {
 
-    const [provincias, setProvincias] = useState()
-    const [localidades, setLocalidades] = useState()
-    const [centros, setCentros] = useState()
-    const [datosForm, setDatosForm] = useState({})
+    const [provincias, setProvincias] = useState();
+    const [localidades, setLocalidades] = useState();
+    const [centros, setCentros] = useState();
+    const [datosForm, setDatosForm] = useState({});
 
       // ESTADOS PARA DOCUMENTOS
     const [fileNames, setFileNames] = useState([]);
     const [newFiles, setNewFiles] = useState([]);
     const [tipoDocumentos, setTipoDocumentos] = useState();
     const [uploadFiles, setUploadFiles] = useState([]);
+    const [documentSavedId, setDocumentSavedId] = useState();
 
     const onDrop = useCallback((acceptedFiles) => {
         setNewFiles(newFiles.concat(acceptedFiles));
@@ -47,6 +47,32 @@ const FormularioNuevaVenta = () => {
     });
     setFileNames(selectedFiles);
     };
+
+    const saveDocuments = async (files=[], fileNames=[]) => {
+        console.log(files, fileNames)
+      if(files.length>0 && fileNames.length>0) {
+          let fileDataFiltered = []
+            const filterred = fileNames.filter(file => {
+              return files[0].name === file.NOMBRE
+            })
+            if(filterred.length>0) fileDataFiltered = filterred;
+
+          const docData = new FormData();
+          docData.append("accion", "subirDocumentoBricomart")
+          docData.append("tipoName", "Bricomart Parte A")
+          docData.append('documento', files[0])
+                              
+          const requestOptions = {
+            method: 'POST',
+            body: docData
+          };
+
+          const postDocument = await fetch(`${API_INPRONET}/core/controller/BricomartController.php`, requestOptions)
+          const resPostDocument = await postDocument.text()
+          const path = await documentPath(resPostDocument)    
+          return path
+      }
+    }
 
     const quitarDocumento = (name) => {
     setNewFiles(newFiles.filter((item) => item.name !== name.NOMBRE));
@@ -183,14 +209,49 @@ const FormularioNuevaVenta = () => {
         return JSON.stringify(datosForm);
     }
 
-    const onSubmitForm = (e) => {
+    const onSubmitForm = async (e) => {
         e.preventDefault();
+        let ventaId;
         console.log(setMutationString())
+        await client
+                .mutate({
+                    mutation: insertVentaBricomart,
+                    variables: {
+                        fields: JSON.parse(setMutationString())
+                    }
+                })
+                .then(res => {
+                    console.log(res)
+                    ventaId = res.data.insert_ventas_bricomart.returning[0].id
+                })
+        const path = await saveDocuments(newFiles, fileNames)
+        console.log(path)
+        updateRutaVentaDocumento(ventaId, path)
+
+    }
+
+    const documentPath = (id) => {
+        return client
+                .query({
+                    query: getDocumentPath,
+                    variables: {
+                        documentId: id
+                    }
+                })
+                .then(res => {
+                    console.log(res)
+                    return res.data.getDocumento[0].RUTA
+                })
+    }
+
+    const updateRutaVentaDocumento = (ventaId, documentPath) => {
+        console.log(ventaId, documentPath)
         client
             .mutate({
-                mutation: insertVentaBricomart,
+                mutation: updateDocumentPath,
                 variables: {
-                    fields: JSON.parse(setMutationString())
+                    ventaId: ventaId,
+                    documentPath: documentPath
                 }
             })
             .then(res => {
@@ -427,7 +488,7 @@ const FormularioNuevaVenta = () => {
                                 </Col>
                                 <Col md={4}>
                                 <Label>Añadir documento:</Label>
-                                    <Dropzone onDrop={onDrop}>
+                                <Dropzone onDrop={onDrop}>
                                     {({
                                         getRootProps,
                                         getInputProps,
@@ -452,7 +513,7 @@ const FormularioNuevaVenta = () => {
                                         </div>
                                         );
                                     }}
-                                    </Dropzone>
+                                </Dropzone>
                                     <div>
                                     {fileNames.length > 0 ? <strong>Documentos:</strong> : <></>}
                                     <ul>

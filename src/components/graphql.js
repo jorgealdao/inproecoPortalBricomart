@@ -124,6 +124,14 @@ export const getCentroName = gql`
   }
 `;
 
+export const getDocumentPath = gql`
+  query documentPath($documentId: String!) {
+    getDocumento(where: { ID: $documentId }) {
+      RUTA
+    }
+  }
+`;
+
 // mutations
 export const insertVentaBricomart = gql`
   mutation insert_ventas_bricomart($fields: [ventas_bricomart_insert_input!]!) {
@@ -131,6 +139,17 @@ export const insertVentaBricomart = gql`
       returning {
         id
       }
+    }
+  }
+`;
+
+export const updateDocumentPath = gql`
+  mutation update_ventas_bricomart($ventaId: Int!, $documentPath: String!) {
+    update_ventas_bricomart(
+      where: { id: { _eq: $ventaId } }
+      _set: { documento_ruta: $documentPath }
+    ) {
+      affected_rows
     }
   }
 `;

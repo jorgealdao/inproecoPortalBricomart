@@ -217,25 +217,16 @@ class Sidebar extends React.Component{
                     <Nav className="navigation">
                         {
                             this.props.routes.map((prop,key) => {
-                                console.log(this.props.routes, this.state.user)
                                 if(prop.redirect)
                                     return null;
                                 if(prop.type === "child")
                                     return null;
                                 if(prop.type === "navgroup") {
-                                    if(this.state.user.rolDesc === "BRICOMART_INPROECO") {
+
                                         return ( 
                                             <Navmenugroup name={prop.name} key={key}>
                                             </Navmenugroup>
                                           );
-                                    } /* else {
-                                        
-                                        
-                                    }
-                                    return ( 
-                                        <Navmenugroup name={prop.name} key={key}>
-                                        </Navmenugroup>
-                                      ); */
                                 }
                                     
                                 if(prop.type === "dropdown")
