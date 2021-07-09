@@ -12,12 +12,12 @@ import { API_INPRONET } from '../../../components/constants';
 import VentaSuccessModal from '../../../components/common/Modals/VentaSuccessModal';
 import VentaErrorDocumentoModal from '../../../components/common/Modals/VentaErrorDocumentoModal';
 
-const FormularioNuevaVenta = () => {
+const FormularioNuevaVenta = ({history}) => {
 
     const [provincias, setProvincias] = useState();
     const [localidades, setLocalidades] = useState();
     const [centros, setCentros] = useState();
-    const [datosForm, setDatosForm] = useState({});
+    const [datosForm, setDatosForm] = useState({estado_id: 2});
 
       // ESTADOS PARA DOCUMENTOS
     const [fileNames, setFileNames] = useState([]);
@@ -237,6 +237,7 @@ const FormularioNuevaVenta = () => {
 
     const setMutationString = () => {
         //fetchZona(datosForm.centro_id)
+        /* setDatosForm({...datosForm, estado_id: 2}) */
         return JSON.stringify(datosForm);
     }
 
@@ -244,11 +245,11 @@ const FormularioNuevaVenta = () => {
         e.preventDefault();
         console.log(JSON.parse(setMutationString()))
         let ventaId;
-        const documentId = await saveDocuments(newFiles, fileNames)
+        /* const documentId = await saveDocuments(newFiles, fileNames)
         if(!documentId) {
             toggleVentaErrorDocument()
             return
-        }
+        } */
         await client
                 .mutate({
                     mutation: insertVentaBricomart,
@@ -260,9 +261,10 @@ const FormularioNuevaVenta = () => {
                     console.log(res)
                     ventaId = res.data.insert_ventas_bricomart.returning[0].id
                 })        
-        const path = await documentPath(documentId)
+        /* const path = await documentPath(documentId)
         const isUpdated = await updateRutaVentaDocumento(ventaId, path)
-        if(isUpdated === 1) toggleVentaSuccess()
+        if(isUpdated === 1) toggleVentaSuccess() */
+        toggleVentaSuccess()
     }
 
     const documentPath = async (id) => {
@@ -292,6 +294,10 @@ const FormularioNuevaVenta = () => {
                     return res.data.update_ventas_bricomart.affected_rows
                 })
     }
+
+    const redirectToVentas = () => {
+        history.push("/crm/registro-ventas");
+      };
 
      useEffect(() => {
         fetchProvincias()
@@ -588,7 +594,7 @@ const FormularioNuevaVenta = () => {
             </div>
             {/* MODALES */}
             {ventaSuccess ? (
-                    <VentaSuccessModal ventaSuccess={ventaSuccess} toggle={toggleVentaSuccess} />
+                    <VentaSuccessModal ventaSuccess={ventaSuccess} toggle={toggleVentaSuccess} redirectToVentas={redirectToVentas} />
                 ) : (<></>)
             }
             {ventaErrorDocument ? (

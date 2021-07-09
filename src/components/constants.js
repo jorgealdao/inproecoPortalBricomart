@@ -7,7 +7,7 @@ export const API_INPRONET = "http://34.243.112.211/inproecoweb2_0";
 // CONSTANTES PARA BRICOMART
 
 export const REGISTRO_VENTAS_COLUMNS = [
-  { name: "id", title: "Código venta" },
+  { name: "id", title: "ID" },
   { name: "centro", title: "Centro" },
   { name: "nif", title: "Nif" },
   { name: "nombre", title: "Nombre" },

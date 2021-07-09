@@ -55,7 +55,9 @@ export const getVentasByCentro = gql`
       cantidad
       centro
       documento_ruta
-      estado
+      estado_venta {
+        estado: nombre
+      }
       fecha_venta
       localidad
       marca
@@ -81,7 +83,9 @@ export const getVentasAllCentros = gql`
       cantidad
       centro
       documento_ruta
-      estado
+      estado_venta {
+        nombre
+      }
       fecha_venta
       localidad
       marca

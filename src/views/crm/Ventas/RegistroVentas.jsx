@@ -13,12 +13,12 @@ import { GlobalStateContext } from "../../../context/GlobalContext";
 //components
 import Layout from '../../../components/common/Layout/Layout'
 
-const RegistroVentas = () => {
+const RegistroVentas = ({history}) => {
     const { user } = useContext(GlobalStateContext);  
     const { centroId } = user; 
     const columns = REGISTRO_VENTAS_COLUMNS;
     const [ventas, setVentas] = useState(null)
-
+    console.log(history)
     const fetchVentas = () => {
         if(user.rolDesc === "BRICOMART_CENTRO") fetchVentasRoleCentro()
         else fetchVentasRoleCorporativo()
@@ -28,13 +28,14 @@ const RegistroVentas = () => {
         client
             .query({
                 query: getVentasByCentro,
+                fetchPolicy: "no-cache",
                 variables: {
                     centroId: centroId
                 }
             })
             .then(res => {
                 console.log(res)
-                setVentas(res.data.ventas_bricomart)
+                setVentas(setEstadoName(res.data.ventas_bricomart))
             })
     }, [client, getVentasByCentro])
 
@@ -42,14 +43,24 @@ const RegistroVentas = () => {
         client
             .query({
                 query: getVentasAllCentros,
+                fetchPolicy: "no-cache",
             })
             .then(res => {
-                console.log(res)
-                setVentas(res.data.ventas_bricomart)
+                setVentas(setEstadoName(res.data.ventas_bricomart))
             })
     }, [client, getVentasAllCentros])
 
+    const setEstadoName = (ventas) => {
+        let results = []
+        for(let i = 0; i < ventas.length; i++){
+            if(ventas[i].estado_venta) ventas[i].estado = ventas[i].estado_venta.nombre
+            results.push(ventas[i])
+        }
+        return results;
+    }
+
     useEffect(() => {
+        console.log('useEffect')
         fetchVentas()
     }, [])
 
