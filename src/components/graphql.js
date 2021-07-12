@@ -2,8 +2,8 @@ import ApolloClient, { InMemoryCache, gql } from "apollo-boost";
 
 export const client = new ApolloClient({
   //uri: 'http://63.33.70.172:8080/v1/graphql',
-  uri: "https://back-inpr.app.inpronet.es/v1/graphql",
-  //uri: "https://prod-back-inpronet.app.inpronet.es/v1/graphql",
+  //uri: "https://back-inpr.app.inpronet.es/v1/graphql",
+  uri: "https://prod-back-inpronet.app.inpronet.es/v1/graphql",
   fetch,
   request: (operation) => {
     operation.setContext({
@@ -40,7 +40,7 @@ export const getMunicipiosByProvincia = gql`
 
 export const getCentros = gql`
   query centros {
-    getCentroProductor(where: { CLIENTE_ID: "24" }) {
+    getCentroProductor(where: { CLIENTE_ID: "25" }) {
       ID
       DENOMINACION
     }

@@ -285,6 +285,7 @@ const FormularioNuevaVenta = ({history}) => {
 
     const onSubmitForm = async (e) => {
         e.preventDefault();
+        console.log(datosForm)
         let ventaId;
         const documentId = await saveDocuments(newFiles, fileNames)
         if(!documentId) {
