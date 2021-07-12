@@ -94,9 +94,6 @@ const Layout = ({
         if (name === "id") {
           console.log("id");
           //acc.push(`{"${name}": {"_eq": "${searchValue}"}}`);
-        } else if (name === "fecha_venta") {
-          console.log("fecha");
-          //acc.push(`{"fecha_venta": {"_eq": "${searchValue}"}}`)
         } else if (name === "estado") {
           acc.push(
             `{"estado_venta": {"nombre": {"_ilike": "%${searchValue}%"}}}`

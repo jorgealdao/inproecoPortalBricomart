@@ -63,6 +63,16 @@ const RegistroVentas = () => {
         return results;
     }
 
+    /* const setFechaFormatted = (ventas) => {
+        let results = []
+        for(let i = 0; i < ventas.length; i++){
+            if(ventas[i].fecha_venta) ventas[i].fecha_venta = ventas[i].fecha_venta
+            results.push(ventas[i])
+        }
+        console.log(results)
+        return results;
+    } */
+
 
     useEffect(() => {
         fetchVentas()
