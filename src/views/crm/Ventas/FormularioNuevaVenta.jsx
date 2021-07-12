@@ -18,6 +18,7 @@ const FormularioNuevaVenta = ({history}) => {
     const [localidades, setLocalidades] = useState();
     const [centros, setCentros] = useState();
     const [datosForm, setDatosForm] = useState({estado_id: 2});
+    const [nifInvalido, setNifInvalido] = useState();
 
       // ESTADOS PARA DOCUMENTOS
     const [fileNames, setFileNames] = useState([]);
@@ -95,7 +96,68 @@ const FormularioNuevaVenta = ({history}) => {
     };
 
     const onChangeNif = (e) => {
-        setDatosForm({...datosForm, nif: e.target.value})
+        console.log(e.target.value);
+        let cif = e.target.value   
+        let DNI_REGEX = /^(\d{8})([A-Z])$/;
+        let CIF_REGEX = /^([ABCDEFGHJKLMNPQRSUVW])(\d{7})([0-9A-J])$/;
+        
+        cif = cif.toUpperCase();
+        if ( cif.match( DNI_REGEX ) ) {
+            console.log('hola');
+            setNifInvalido(false)
+        let numero, lett, letra;
+        let expresion_regular_dni = /^[XYZ]?\d{5,8}[A-Z]$/;
+        
+            if(expresion_regular_dni.test(cif) === true){
+                numero = cif.substr(0,cif.length-1);
+                numero = numero.replace('X', 0);
+                numero = numero.replace('Y', 1);
+                numero = numero.replace('Z', 2);
+                lett = cif.substr(cif.length-1, 1);
+                numero = numero % 23;
+                letra = 'TRWAGMYFPDXBNJZSQVHLCKET';
+                letra = letra.substring(numero, numero+1);
+                if (letra != lett) {
+                    //Dni erroneo, la letra del NIF no se corresponde
+                    return false;
+                    
+                }else{
+                    //Dni correcto
+                    console.log(e.target.value);
+                    setDatosForm({...datosForm, nif: e.target.value})
+                    return true;
+                }
+
+            }else{
+                //Dni erroneo, formato no válido
+                
+                return false;
+            }
+        
+        }
+        else if ( cif.match( CIF_REGEX )) {
+        
+            let temp = cif
+            if (!/^[A-Za-z0-9]{9}$/.test(temp)){
+                
+                return false
+            }  else if (!/^[ABCDEFGHKLMNPQS]/.test(temp)){
+                
+                return false
+
+            } 
+            else{
+                setNifInvalido(false)
+                setDatosForm({...datosForm, nif: e.target.value})
+                return true;
+            } 
+
+        }else{
+            console.log('adios');
+            setNifInvalido(true)
+            return false
+        }
+
     }
 
     const onChangeFullName = (e) => {
@@ -319,6 +381,10 @@ const FormularioNuevaVenta = ({history}) => {
                                         type="text"
                                         onChange={onChangeNif}
                                         />
+                                        {nifInvalido ? (
+                                                    <div>Por favor, introduzca un número de identificación válido</div>
+                                                ) : (<></>)
+                                            }
                                     </FormGroup>
                                 </Col>
                                 <Col md={7}>
@@ -583,10 +649,16 @@ const FormularioNuevaVenta = ({history}) => {
                             </Row>
                             <Row form> 
                                 <Col md={2}>
-                                    <Button color="primary" type="submit">
+                                    {nifInvalido ? (
+                                        <Button type="submit" disabled>
+                                                Guardar 
+                                        </Button>
+                                        ) : (
+                                        <Button color="primary" type="submit">
                                             Guardar 
-                                    </Button>
-                                </Col>
+                                        </Button>)
+                                    }
+                                 </Col>
                             </Row>
                         </Form>
                     </div>
