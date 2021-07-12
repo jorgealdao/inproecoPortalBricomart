@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useContext } from 'react'
 import { Col, Row, Form, FormGroup, Label, Input,  Button } from "reactstrap";
 import Dropzone from "react-dropzone";
+import moment from "moment";
 
 //graphql
 import { client, getProvincias, getMunicipiosByProvincia, getCentros, insertVentaBricomart, getZonaByCentro, getZonaName, getDocumentPath, updateDocumentPath } from '../../../components/graphql';
@@ -117,34 +118,27 @@ const FormularioNuevaVenta = ({history}) => {
 
             }else{
                 //Dni erroneo, formato no válido
-                
                 return false;
             }
-        
         }
-        else if ( cif.match( CIF_REGEX )) {
-        
+        else if ( cif.match( CIF_REGEX )) {     
             let temp = cif
             if (!/^[A-Za-z0-9]{9}$/.test(temp)){
                 
                 return false
-            }  else if (!/^[ABCDEFGHKLMNPQS]/.test(temp)){
-                
+            }  else if (!/^[ABCDEFGHKLMNPQS]/.test(temp)){   
                 return false
-
             } 
             else{
                 setNifInvalido(false)
                 setDatosForm({...datosForm, nif: e.target.value})
                 return true;
             } 
-
         }else{
             console.log('adios');
             setNifInvalido(true)
             return false
         }
-
     }
 
     const onChangeFullName = (e) => {
@@ -188,7 +182,8 @@ const FormularioNuevaVenta = ({history}) => {
     }
 
     const onChangeFechaVenta = (e) => {
-        setDatosForm({...datosForm, fecha_venta: e.target.value})
+        const dateFormatted = moment(e.target.value).format("DD/MM/YYYY");
+        setDatosForm({...datosForm, fecha_venta: dateFormatted});
     }
 
     const onChangeMarca = (e) => {
@@ -309,7 +304,6 @@ const FormularioNuevaVenta = ({history}) => {
         const path = await documentPath(documentId)
         const isUpdated = await updateRutaVentaDocumento(ventaId, path)
         if(isUpdated === 1) toggleVentaSuccess()
-        toggleVentaSuccess()
     }
 
     const documentPath = async (id) => {

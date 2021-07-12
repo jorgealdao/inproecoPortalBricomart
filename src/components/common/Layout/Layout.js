@@ -37,7 +37,15 @@ import { compareDates } from "./../../constants";
 // GRAPHQL
 import { client, getVentasAllCentros } from "../../graphql";
 
-const Layout = ({ title, rows, setRows, columns, children, dataFilters }) => {
+const Layout = ({
+  title,
+  rows,
+  setRows,
+  columns,
+  children,
+  dataFilters,
+  setEstadoName,
+}) => {
   const getRowId = (row) => row.id;
   const filterRowMessages = {
     filterPlaceholder: "Filtrar...",
@@ -120,8 +128,8 @@ const Layout = ({ title, rows, setRows, columns, children, dataFilters }) => {
           },
         })
         .then((res) => {
-          const results = res.data.ventas_bricomart;
-          console.log(results);
+          //const results = res.data.ventas_bricomart;
+          const results = setEstadoName(res.data.ventas_bricomart);
           if (!excelExport) {
             setRows(results);
             setLastQuery(queryString);
