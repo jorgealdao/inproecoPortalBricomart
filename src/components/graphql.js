@@ -77,8 +77,8 @@ export const getVentasByCentro = gql`
 `;
 
 export const getVentasAllCentros = gql`
-  query ventas {
-    ventas_bricomart {
+  query ventas($fields: ventas_bricomart_bool_exp, $limit: Int) {
+    ventas_bricomart(limit: $limit, where: $fields) {
       id
       cantidad
       centro

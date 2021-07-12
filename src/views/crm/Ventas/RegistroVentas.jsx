@@ -13,12 +13,12 @@ import { GlobalStateContext } from "../../../context/GlobalContext";
 //components
 import Layout from '../../../components/common/Layout/Layout'
 
-const RegistroVentas = ({history}) => {
+const RegistroVentas = () => {
     const { user } = useContext(GlobalStateContext);  
     const { centroId } = user; 
     const columns = REGISTRO_VENTAS_COLUMNS;
     const [ventas, setVentas] = useState(null)
-    console.log(history)
+
     const fetchVentas = () => {
         if(user.rolDesc === "BRICOMART_CENTRO") fetchVentasRoleCentro()
         else fetchVentasRoleCorporativo()
@@ -44,6 +44,9 @@ const RegistroVentas = ({history}) => {
             .query({
                 query: getVentasAllCentros,
                 fetchPolicy: "no-cache",
+                variables: {
+                    limit: 500,
+                  },
             })
             .then(res => {
                 setVentas(setEstadoName(res.data.ventas_bricomart))
@@ -60,7 +63,6 @@ const RegistroVentas = ({history}) => {
     }
 
     useEffect(() => {
-        console.log('useEffect')
         fetchVentas()
     }, [])
 
@@ -70,6 +72,7 @@ const RegistroVentas = ({history}) => {
             rows={ventas}
             setRows={setVentas}
             columns={columns}
+            fetchVentas={fetchVentas}
         >
             <FilteringState defaultFilters={[]} />
             <IntegratedFiltering />

@@ -23,9 +23,7 @@ const FormularioNuevaVenta = ({history}) => {
       // ESTADOS PARA DOCUMENTOS
     const [fileNames, setFileNames] = useState([]);
     const [newFiles, setNewFiles] = useState([]);
-    const [tipoDocumentos, setTipoDocumentos] = useState();
     const [uploadFiles, setUploadFiles] = useState([]);
-    const [documentSavedId, setDocumentSavedId] = useState();
 
     // MODALES
     const [ventaSuccess, setVentaSuccess] = useState(false);
@@ -55,18 +53,7 @@ const FormularioNuevaVenta = ({history}) => {
         setUploadFiles(acceptedFiles);
       });
 
-    const changeType = (event) => {
-    const selectedFiles = fileNames.map((fileName) => {
-        if (fileName.NOMBRE === event.target.name) {
-        fileName.TIPO_DOCUMENTO_ID = event.target.value;
-        }
-        return fileName;
-    });
-    setFileNames(selectedFiles);
-    };
-
     const saveDocuments = async (files=[], fileNames=[]) => {
-        console.log(files, fileNames)
       if(files.length>0 && fileNames.length>0) {
           let fileDataFiltered = []
             const filterred = fileNames.filter(file => {
@@ -298,20 +285,17 @@ const FormularioNuevaVenta = ({history}) => {
     }
 
     const setMutationString = () => {
-        //fetchZona(datosForm.centro_id)
-        /* setDatosForm({...datosForm, estado_id: 2}) */
         return JSON.stringify(datosForm);
     }
 
     const onSubmitForm = async (e) => {
         e.preventDefault();
-        console.log(JSON.parse(setMutationString()))
         let ventaId;
-        /* const documentId = await saveDocuments(newFiles, fileNames)
+        const documentId = await saveDocuments(newFiles, fileNames)
         if(!documentId) {
             toggleVentaErrorDocument()
             return
-        } */
+        }
         await client
                 .mutate({
                     mutation: insertVentaBricomart,
@@ -320,12 +304,11 @@ const FormularioNuevaVenta = ({history}) => {
                     }
                 })
                 .then(res => {
-                    console.log(res)
                     ventaId = res.data.insert_ventas_bricomart.returning[0].id
                 })        
-        /* const path = await documentPath(documentId)
+        const path = await documentPath(documentId)
         const isUpdated = await updateRutaVentaDocumento(ventaId, path)
-        if(isUpdated === 1) toggleVentaSuccess() */
+        if(isUpdated === 1) toggleVentaSuccess()
         toggleVentaSuccess()
     }
 
