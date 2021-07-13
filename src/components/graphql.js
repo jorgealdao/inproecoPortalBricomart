@@ -54,7 +54,7 @@ export const getVentasByCentro = gql`
       id
       cantidad
       centro
-      documento_ruta
+      parteA_ruta
       estado_venta {
         estado: nombre
       }
