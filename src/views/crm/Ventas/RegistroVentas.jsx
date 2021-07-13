@@ -59,7 +59,6 @@ const RegistroVentas = () => {
             if(ventas[i].estado_venta) ventas[i].estado = ventas[i].estado_venta.nombre
             results.push(ventas[i])
         }
-        console.log(results)
         return results;
     }
 

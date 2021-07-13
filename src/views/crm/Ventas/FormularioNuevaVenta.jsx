@@ -18,7 +18,7 @@ const FormularioNuevaVenta = ({history}) => {
     const [provincias, setProvincias] = useState();
     const [localidades, setLocalidades] = useState();
     const [centros, setCentros] = useState();
-    const [datosForm, setDatosForm] = useState({estado_id: 2});
+    const [datosForm, setDatosForm] = useState({});
     const [nifInvalido, setNifInvalido] = useState();
 
     // MODALES
@@ -54,7 +54,7 @@ const FormularioNuevaVenta = ({history}) => {
         });
         const files = fileNames.concat(newFileNames);
         setFileNames(files);
-        setUploadFiles(acceptedFiles);
+        setUploadFiles(acceptedFiles); 
       });
 
       const onDropB = useCallback((acceptedFiles) => {
@@ -74,7 +74,6 @@ const FormularioNuevaVenta = ({history}) => {
       });
 
     const saveDocuments = async (files=[], fileNames=[], tipoName) => {
-        console.log(files, fileNames)
       if(files.length>0 && fileNames.length>0) {
           let fileDataFiltered = []
             const filterred = fileNames.filter(file => {
@@ -98,21 +97,24 @@ const FormularioNuevaVenta = ({history}) => {
       }
     }
 
-    const quitarDocumento = (name) => {
+    const quitarDocumentoA = (name) => {
     setNewFiles(newFiles.filter((item) => item.name !== name.NOMBRE));
     setFileNames(fileNames.filter((item) => item !== name));
     };
 
+    const quitarDocumentoB = (name) => {
+        setNewFilesB(newFilesB.filter((item) => item.name !== name.NOMBRE));
+        setFileNamesB(fileNamesB.filter((item) => item !== name));
+    };
+
     // COGER VALORES INPUTS
     const onChangeNif = (e) => {
-        console.log(e.target.value);
         let cif = e.target.value   
         let DNI_REGEX = /^(\d{8})([A-Z])$/;
         let CIF_REGEX = /^([ABCDEFGHJKLMNPQRSUVW])(\d{7})([0-9A-J])$/;
         
         cif = cif.toUpperCase();
         if ( cif.match( DNI_REGEX ) ) {
-            console.log('hola');
             setNifInvalido(false);
             setDatosForm({...datosForm, nif: e.target.value})
         let numero, lett, letra;
@@ -162,7 +164,6 @@ const FormularioNuevaVenta = ({history}) => {
             setNifInvalido(false)
 
         } else{
-            console.log('adios');
             setNifInvalido(true)
             return false
         }
@@ -319,9 +320,17 @@ const FormularioNuevaVenta = ({history}) => {
         return JSON.stringify(datosForm);
     }
 
+    const existsParteB = () => {
+        return fileNamesB.length > 0
+    }
+
+    useEffect(() => {
+        !existsParteB() ? setDatosForm({...datosForm, estado_id: 2}) : setDatosForm({...datosForm, estado_id: 3})
+    }, [fileNamesB])
+
     const onSubmitForm = async (e) => {
         e.preventDefault();
-        console.log(fileNamesB, newFilesB)
+        console.log(JSON.parse(setMutationString()))
         let ventaId;
         const parteAId = await saveDocuments(newFiles, fileNames, "Bricomart Parte A")
         if(!parteAId) {
@@ -330,7 +339,7 @@ const FormularioNuevaVenta = ({history}) => {
         }
         let parteBId = "";
         if(fileNamesB.length > 0) {
-            parteBId = await saveDocuments(newFilesB, fileNamesB, "Bricomart Parte B")
+            parteBId = await saveDocuments(newFilesB, fileNamesB, "Bricomart Parte B")    
         }
         await client
                 .mutate({
@@ -386,7 +395,7 @@ const FormularioNuevaVenta = ({history}) => {
 
      useEffect(() => {
         fetchProvincias()
-        fetchCentros()
+        fetchCentros()       
     }, [])
 
     return (
@@ -679,7 +688,7 @@ const FormularioNuevaVenta = ({history}) => {
                                             {fileName.IS_NEW && (
                                             <span
                                                 className="delete-document"
-                                                onClick={() => quitarDocumento(fileName)}
+                                                onClick={() => quitarDocumentoA(fileName)}
                                             >
                                                 <Button color="danger">Eliminar</Button>
                                             </span>
@@ -742,7 +751,7 @@ const FormularioNuevaVenta = ({history}) => {
                                             {fileName.IS_NEW && (
                                             <span
                                                 className="delete-document"
-                                                onClick={() => quitarDocumento(fileName)}
+                                                onClick={() => quitarDocumentoB(fileName)}
                                             >
                                                 <Button color="danger">Eliminar</Button>
                                             </span>
