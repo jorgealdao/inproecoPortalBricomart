@@ -92,7 +92,8 @@ const FormularioNuevaVenta = ({history}) => {
         cif = cif.toUpperCase();
         if ( cif.match( DNI_REGEX ) ) {
             console.log('hola');
-            setNifInvalido(false)
+            setNifInvalido(false);
+            setDatosForm({...datosForm, nif: e.target.value})
         let numero, lett, letra;
         let expresion_regular_dni = /^[XYZ]?\d{5,8}[A-Z]$/;
         
@@ -134,7 +135,12 @@ const FormularioNuevaVenta = ({history}) => {
                 setDatosForm({...datosForm, nif: e.target.value})
                 return true;
             } 
-        }else{
+        } 
+        else if (cif == ''){
+
+            setNifInvalido(false)
+
+        } else{
             console.log('adios');
             setNifInvalido(true)
             return false
@@ -143,6 +149,14 @@ const FormularioNuevaVenta = ({history}) => {
 
     const onChangeFullName = (e) => {
         setDatosForm({...datosForm, nombre: e.target.value})
+    }
+
+    const onChangeApellido1 = (e) => {
+        setDatosForm({...datosForm, apellido1: e.target.value})
+    }
+
+    const onChangeApellido2 = (e) => {
+        setDatosForm({...datosForm, apellido2: e.target.value})
     }
 
     const onChangeRazonSocial = (e) => {
@@ -352,7 +366,7 @@ const FormularioNuevaVenta = ({history}) => {
                         <h2>Registro Nueva Venta</h2>
                         <Form onSubmit={onSubmitForm}>
                             <Row form>
-                                <Col md={5}>
+                                <Col md={2}>
                                     <FormGroup>
                                         <Label>NIF/NIE</Label>
                                         <Input
@@ -360,17 +374,35 @@ const FormularioNuevaVenta = ({history}) => {
                                         onChange={onChangeNif}
                                         />
                                         {nifInvalido ? (
-                                                    <div>Por favor, introduzca un número de identificación válido</div>
+                                                    <div>Introduzca un número de identificación válido</div>
                                                 ) : (<></>)
                                             }
                                     </FormGroup>
                                 </Col>
-                                <Col md={7}>
+                                <Col md={4}>
                                     <FormGroup>
-                                        <Label>Nombre y apellidos</Label>
+                                        <Label>Nombre</Label>
                                         <Input
                                         type="text"
                                         onChange={onChangeFullName}
+                                        />
+                                    </FormGroup>
+                                </Col>
+                                <Col md={3}>
+                                    <FormGroup>
+                                        <Label>Apellido 1</Label>
+                                        <Input
+                                        type="text"
+                                        onChange={onChangeApellido1}
+                                        />
+                                    </FormGroup>
+                                </Col>
+                                <Col md={3}>
+                                    <FormGroup>
+                                        <Label>Apellido 2</Label>
+                                        <Input
+                                        type="text"
+                                        onChange={onChangeApellido2}
                                         />
                                     </FormGroup>
                                 </Col>
