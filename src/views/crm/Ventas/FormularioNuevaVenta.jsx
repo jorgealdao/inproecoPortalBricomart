@@ -4,7 +4,7 @@ import Dropzone from "react-dropzone";
 import moment from "moment";
 
 //graphql
-import { client, getProvincias, getMunicipiosByProvincia, getCentros, insertVentaBricomart, getZonaByCentro, getZonaName, getDocumentPath, updateDocumentPath } from '../../../components/graphql';
+import { client, getProvincias, getMunicipiosByProvincia, getCentros, insertVentaBricomart, getZonaByCentro, getZonaName, getDocumentPath, updateDocumentsPath } from '../../../components/graphql';
 
 // constants
 import { API_INPRONET } from '../../../components/constants';
@@ -21,11 +21,6 @@ const FormularioNuevaVenta = ({history}) => {
     const [datosForm, setDatosForm] = useState({estado_id: 2});
     const [nifInvalido, setNifInvalido] = useState();
 
-      // ESTADOS PARA DOCUMENTOS
-    const [fileNames, setFileNames] = useState([]);
-    const [newFiles, setNewFiles] = useState([]);
-    const [uploadFiles, setUploadFiles] = useState([]);
-
     // MODALES
     const [ventaSuccess, setVentaSuccess] = useState(false);
     const [ventaErrorDocument, setVentaErrorDocument] = useState(false)
@@ -38,7 +33,15 @@ const FormularioNuevaVenta = ({history}) => {
         setVentaErrorDocument(!ventaErrorDocument)
     }
 
-    const onDrop = useCallback((acceptedFiles) => {
+     // ESTADOS PARA DOCUMENTOS - B para el Parte B
+     const [fileNames, setFileNames] = useState([]);
+     const [newFiles, setNewFiles] = useState([]);
+     const [uploadFiles, setUploadFiles] = useState([]);
+     const [fileNamesB, setFileNamesB] = useState([]);
+     const [newFilesB, setNewFilesB] = useState([]);
+     const [uploadFilesB, setUploadFilesB] = useState([]);
+
+    const onDropA = useCallback((acceptedFiles) => {
         setNewFiles(newFiles.concat(acceptedFiles));
         let newFileNames = [];
         acceptedFiles.forEach((file) => {
@@ -54,7 +57,24 @@ const FormularioNuevaVenta = ({history}) => {
         setUploadFiles(acceptedFiles);
       });
 
-    const saveDocuments = async (files=[], fileNames=[]) => {
+      const onDropB = useCallback((acceptedFiles) => {
+        setNewFilesB(newFilesB.concat(acceptedFiles));
+        let newFileNames = [];
+        acceptedFiles.forEach((file) => {
+          newFileNames.push({
+            NOMBRE: file.name,
+            RUTA: "",
+            TIPO_DOCUMENTO_ID: "",
+            IS_NEW: true,
+          });
+        });
+        const files = fileNamesB.concat(newFileNames);
+        setFileNamesB(files);
+        setUploadFilesB(acceptedFiles);
+      });
+
+    const saveDocuments = async (files=[], fileNames=[], tipoName) => {
+        console.log(files, fileNames)
       if(files.length>0 && fileNames.length>0) {
           let fileDataFiltered = []
             const filterred = fileNames.filter(file => {
@@ -64,7 +84,7 @@ const FormularioNuevaVenta = ({history}) => {
 
           const docData = new FormData();
           docData.append("accion", "subirDocumentoBricomart")
-          docData.append("tipoName", "Bricomart Parte A")
+          docData.append("tipoName", tipoName)
           docData.append('documento', files[0])
                               
           const requestOptions = {
@@ -83,6 +103,7 @@ const FormularioNuevaVenta = ({history}) => {
     setFileNames(fileNames.filter((item) => item !== name));
     };
 
+    // COGER VALORES INPUTS
     const onChangeNif = (e) => {
         console.log(e.target.value);
         let cif = e.target.value   
@@ -279,18 +300,23 @@ const FormularioNuevaVenta = ({history}) => {
         //fetchZona(e.target.value)
     }
 
+    // FORMATEAR DATOS PARA ENVIAR
     const setMutationString = () => {
         return JSON.stringify(datosForm);
     }
 
     const onSubmitForm = async (e) => {
         e.preventDefault();
-        console.log(datosForm)
+        console.log(fileNamesB, newFilesB)
         let ventaId;
-        const documentId = await saveDocuments(newFiles, fileNames)
-        if(!documentId) {
+        const parteAId = await saveDocuments(newFiles, fileNames, "Bricomart Parte A")
+        if(!parteAId) {
             toggleVentaErrorDocument()
             return
+        }
+        let parteBId = "";
+        if(fileNamesB.length > 0) {
+            parteBId = await saveDocuments(newFilesB, fileNamesB, "Bricomart Parte B")
         }
         await client
                 .mutate({
@@ -302,8 +328,12 @@ const FormularioNuevaVenta = ({history}) => {
                 .then(res => {
                     ventaId = res.data.insert_ventas_bricomart.returning[0].id
                 })        
-        const path = await documentPath(documentId)
-        const isUpdated = await updateRutaVentaDocumento(ventaId, path)
+        const pathParteA = await documentPath(parteAId)
+        let pathParteB;
+        if(parteBId) {
+            pathParteB = await documentPath(parteBId)
+        }
+        const isUpdated = await updateRutaVentaDocumento(ventaId, pathParteA, pathParteB)
         if(isUpdated === 1) toggleVentaSuccess()
     }
 
@@ -321,13 +351,14 @@ const FormularioNuevaVenta = ({history}) => {
                 })
     }
 
-    const updateRutaVentaDocumento = async (ventaId, documentPath) => {
+    const updateRutaVentaDocumento = async (ventaId, parteA, parteB) => {
         return client
                 .mutate({
-                    mutation: updateDocumentPath,
+                    mutation: updateDocumentsPath,
                     variables: {
                         ventaId: ventaId,
-                        documentPath: documentPath
+                        parteAPath: parteA,
+                        parteBPath: parteB
                     }
                 })
                 .then(res => {
@@ -561,9 +592,11 @@ const FormularioNuevaVenta = ({history}) => {
                                         </Input>
                                     </FormGroup>
                                 </Col>
+                            </Row>
+                            <Row form>
                                 <Col md={4}>
-                                <Label>Añadir documento:</Label>
-                                <Dropzone onDrop={onDrop}>
+                                <Label>Añadir parte A:</Label>
+                                <Dropzone onDrop={onDropA}>
                                     {({
                                         getRootProps,
                                         getInputProps,
@@ -593,6 +626,69 @@ const FormularioNuevaVenta = ({history}) => {
                                     {fileNames.length > 0 ? <strong>Documentos:</strong> : <></>}
                                     <ul>
                                         {fileNames.map((fileName) => (
+                                        <li key={fileName.NOMBRE}>
+                                            <span className="filename-list">{fileName.NOMBRE}</span>
+                                            {/* {fileName.IS_NEW ? (
+                                            <select
+                                                name={fileName.NOMBRE}
+                                                value={fileName.TIPO_DOCUMENTO_ID}
+                                                style={{ width: "280px" }}
+                                                onChange={changeType}
+                                            >
+                                                {tipoDocumentos.map(({ ID, nombre }) => (
+                                                <option key={ID} value={ID}>
+                                                    {nombre}
+                                                </option>
+                                                ))}
+                                            </select>
+                                            ) : (
+                                            <button>{fileName.TIPO_DOCUMENTO[0].NOMBRE}</button>
+                                            )} */}
+                                            {fileName.IS_NEW && (
+                                            <span
+                                                className="delete-document"
+                                                onClick={() => quitarDocumento(fileName)}
+                                            >
+                                                <Button color="danger">Eliminar</Button>
+                                            </span>
+                                            )}
+                                        </li>
+                                        ))}
+                                    </ul>
+                                    </div>
+                                </Col>
+                                <Col md={4}>
+                                <Label>Añadir parte B:</Label>
+                                <Dropzone onDrop={onDropB}>
+                                    {({
+                                        getRootProps,
+                                        getInputProps,
+                                        isDragActive,
+                                        isDragAccept,
+                                        isDragReject,
+                                    }) => {
+                                        const additionalClass = isDragAccept
+                                        ? "accept"
+                                        : isDragReject
+                                        ? "reject"
+                                        : "";
+
+                                        return (
+                                        <div
+                                            {...getRootProps({
+                                            className: `dropzone ${additionalClass}`,
+                                            })}
+                                        >
+                                            <input {...getInputProps()} />
+                                            <span>{isDragActive ? "📂" : "📁"}</span>
+                                        </div>
+                                        );
+                                    }}
+                                </Dropzone>
+                                    <div>
+                                    {fileNamesB.length > 0 ? <strong>Documentos:</strong> : <></>}
+                                    <ul>
+                                        {fileNamesB.map((fileName) => (
                                         <li key={fileName.NOMBRE}>
                                             <span className="filename-list">{fileName.NOMBRE}</span>
                                             {/* {fileName.IS_NEW ? (
