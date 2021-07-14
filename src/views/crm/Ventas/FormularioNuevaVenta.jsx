@@ -20,6 +20,8 @@ const FormularioNuevaVenta = ({history}) => {
     const [centros, setCentros] = useState();
     const [datosForm, setDatosForm] = useState({});
     const [nifInvalido, setNifInvalido] = useState();
+    const [almacen, setAlmacen] = useState(false);
+    const [fecha, setFecha] = useState(false);
 
     // MODALES
     const [ventaSuccess, setVentaSuccess] = useState(false);
@@ -220,6 +222,7 @@ const FormularioNuevaVenta = ({history}) => {
     const onChangeFechaVenta = (e) => {
         const dateFormatted = moment(e.target.value).format("DD/MM/YYYY");
         setDatosForm({...datosForm, fecha_venta: dateFormatted});
+        setFecha(true);
     }
 
     const onChangeMarca = (e) => {
@@ -312,6 +315,11 @@ const FormularioNuevaVenta = ({history}) => {
     const onChangeCentro = (e) => {
         console.log(e.target.value, e.target.options[e.target.selectedIndex].text)
         setDatosForm({...datosForm, centro_id: e.target.value, centro: e.target.options[e.target.selectedIndex].text})
+        setAlmacen(true)
+        /*  if (almacen == false) {
+           setAlmacen(true)
+           console.log(almacen);
+        } */
         //fetchZona(e.target.value)
     }
 
@@ -609,17 +617,21 @@ const FormularioNuevaVenta = ({history}) => {
                             <Row form>
                                 <Col md={3}>
                                     <FormGroup>
-                                        <Label>Fecha Venta</Label>
+                                        <Label>Fecha Venta*</Label>
                                         <Input
                                         type="date"
                                         placeholder="date placeholder"
                                         onChange={onChangeFechaVenta}
                                         />
+                                         {!fecha ? (
+                                                    <div>Por favor, seleccione una fecha</div>
+                                                ) : (<></>)
+                                            }
                                     </FormGroup>
                                 </Col>
                                 <Col md={4}>
                                     <FormGroup>
-                                        <Label>Tienda</Label>
+                                        <Label>Almacén*</Label>
                                         <Input
                                         type="select"
                                         onChange={onChangeCentro}
@@ -631,12 +643,16 @@ const FormularioNuevaVenta = ({history}) => {
                                                 )
                                             })}
                                         </Input>
+                                        {!almacen ? (
+                                                    <div>Por favor, seleccione un almacén</div>
+                                                ) : (<></>)
+                                            }
                                     </FormGroup>
                                 </Col>
                             </Row>
                             <Row form>
                                 <Col md={4}>
-                                <Label>Añadir parte A:</Label>
+                                <Label>Añadir parte A*:</Label>
                                 <Dropzone onDrop={onDropA}>
                                     {({
                                         getRootProps,
@@ -764,7 +780,7 @@ const FormularioNuevaVenta = ({history}) => {
                             </Row>
                             <Row form> 
                                 <Col md={2}>
-                                    {nifInvalido ? (
+                                    {nifInvalido || !almacen || !fecha ? (
                                         <Button type="submit" disabled>
                                                 Guardar 
                                         </Button>
