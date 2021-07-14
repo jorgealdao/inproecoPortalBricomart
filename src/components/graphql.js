@@ -55,6 +55,7 @@ export const getVentasByCentro = gql`
       cantidad
       centro
       parteA_ruta
+      parteB_ruta
       estado_venta {
         estado: nombre
       }
@@ -83,6 +84,7 @@ export const getVentasAllCentros = gql`
       cantidad
       centro
       parteA_ruta
+      parteB_ruta
       estado_venta {
         nombre
       }
@@ -130,6 +132,24 @@ export const getCentroName = gql`
 export const getDocumentPath = gql`
   query documentPath($documentId: String!) {
     getDocumento(where: { ID: $documentId }) {
+      RUTA
+    }
+  }
+`;
+
+export const getDocumentosByRetiradaId = gql`
+  query documentos($retiradaId: String!) {
+    getRetiradaDocumento(where: { RETIRADA_ID: $retiradaId }) {
+      DOCUMENTO_ID
+    }
+  }
+`;
+
+export const getDocumentosById = gql`
+  query documentos($id: String!) {
+    getDocumento(where: { ID: $id }) {
+      ID
+      NOMBRE
       RUTA
     }
   }
@@ -282,24 +302,6 @@ export const getBaseImponibleFactura = gql`
   query facturas($id: String!) {
     getFacturasView(where: { ID: $id }) {
       baseImponible: BASE_IMPONIBLE
-    }
-  }
-`;
-
-export const getDocumentosByRetiradaId = gql`
-  query documentos($retiradaId: String!) {
-    getRetiradaDocumento(where: { RETIRADA_ID: $retiradaId }) {
-      DOCUMENTO_ID
-    }
-  }
-`;
-
-export const getDocumentosById = gql`
-  query documentos($id: String!) {
-    getDocumento(where: { ID: $id }) {
-      ID
-      NOMBRE
-      RUTA
     }
   }
 `;

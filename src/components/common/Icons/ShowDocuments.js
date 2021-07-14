@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ShowDocumentsModal from "../Modals/ShowDocumentsModal";
 
-const ShowDocuments = ({ row, getServicios }) => {
+const ShowDocuments = ({ row }) => {
   const [showDocumentsModal, setShowDocumentsModal] = useState(false);
 
   const toggleShowDocumentsModal = () => {
@@ -24,7 +24,6 @@ const ShowDocuments = ({ row, getServicios }) => {
           showDocumentsModal={showDocumentsModal}
           toggle={toggleShowDocumentsModal}
           retirada={row}
-          getServicios={getServicios}
         />
       ) : (
         <></>

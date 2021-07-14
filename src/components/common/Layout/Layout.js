@@ -6,6 +6,7 @@ import {
   SearchState,
   FilteringState,
   IntegratedFiltering,
+  RowDetailState,
 } from "@devexpress/dx-react-grid";
 import { SearchPanel } from "@devexpress/dx-react-grid-bootstrap4";
 import {
@@ -16,6 +17,7 @@ import {
   TableFilterRow,
   Toolbar,
   ExportPanel,
+  TableRowDetail,
 } from "@devexpress/dx-react-grid-bootstrap4";
 import {
   Template,
@@ -30,6 +32,7 @@ import saveAs from "file-saver";
 import ExportExcel from "./../Export/ExportExcel";
 import Buttons from "./../Buttons/Buttons";
 import FilterCell from "../../common/Filters/FilterCell";
+import RowVentaActions from "../Icons/RowVentaActions";
 
 // CONSTANTS
 import { compareDates } from "./../../constants";
@@ -163,6 +166,7 @@ const Layout = ({
                         <Grid rows={rows} columns={columns} getRowId={getRowId}>
                           <SearchState onValueChange={setSearchValue} />
                           <SortingState />
+                          <RowDetailState />
                           <IntegratedSorting
                             columnExtensions={integratedSortingColumnExtensions}
                           />
@@ -192,6 +196,11 @@ const Layout = ({
                             rows={rowsExport}
                             columns={columns}
                             onSave={onSave}
+                          />
+                          <TableRowDetail
+                            toggleCellComponent={(props) => (
+                              <RowVentaActions {...props} />
+                            )}
                           />
                           {/* INICIO RECOGER LAS LÍNEAS FILTRADAS */}
                           <Template name="root">
