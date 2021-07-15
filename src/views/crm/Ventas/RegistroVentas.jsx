@@ -30,6 +30,7 @@ const RegistroVentas = () => {
                 query: getVentasByCentro,
                 fetchPolicy: "no-cache",
                 variables: {
+                    limit: 500,
                     centroId: centroId
                 }
             })
@@ -85,6 +86,7 @@ const RegistroVentas = () => {
             columns={columns}
             fetchVentas={fetchVentas}
             setEstadoName={setEstadoName}
+            user={user}
         >
             <FilteringState defaultFilters={[]} />
             <IntegratedFiltering />

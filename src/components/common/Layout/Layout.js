@@ -38,7 +38,11 @@ import RowVentaActions from "../Icons/RowVentaActions";
 import { compareDates } from "./../../constants";
 
 // GRAPHQL
-import { client, getVentasAllCentros } from "../../graphql";
+import {
+  client,
+  getVentasAllCentros,
+  getVentasByCentroFilter,
+} from "../../graphql";
 
 const Layout = ({
   title,
@@ -46,8 +50,9 @@ const Layout = ({
   setRows,
   columns,
   children,
-  dataFilters,
+  fetchVentas,
   setEstadoName,
+  user,
 }) => {
   const getRowId = (row) => row.id;
   const filterRowMessages = {
@@ -92,7 +97,29 @@ const Layout = ({
   const [lastQuery, setLastQuery] = useState();
 
   const getQueryString = () => {
-    let filter = columns
+    let filter;
+    if (user.rolDesc !== "BRICOMART_CENTRO") {
+      filter = columns
+        .reduce((acc, { name }) => {
+          if (name === "id") {
+            console.log("id");
+            //acc.push(`{"${name}": {"_eq": "${searchValue}"}}`);
+          } else if (name === "estado") {
+            acc.push(
+              `{"estado_venta": {"nombre": {"_ilike": "%${searchValue}%"}}}`
+            );
+          } else acc.push(`{"${name}": {"_ilike": "%${searchValue}%"}}`);
+          return acc;
+        }, [])
+        .join(",");
+
+      if (columns.length > 1) {
+        filter = `${filter}`;
+      }
+      return `{"_or":[${filter}]}`;
+    }
+
+    filter = columns
       .reduce((acc, { name }) => {
         if (name === "id") {
           console.log("id");
@@ -109,11 +136,12 @@ const Layout = ({
     if (columns.length > 1) {
       filter = `${filter}`;
     }
-    return `{"_or":[${filter}]}`;
+    return `{"_and":[{"centro_id":{"_eq":"${user.centroId}"}}, {"_or":[${filter}]}]}`;
   };
-
+  //{_and: [{centro_id: {_eq: "691"}}, {_or: [{id: {_eq: 50}}, {nombre: {_ilike:"%aim%"}}]}]}
   const loadData = (excelExport = false) => {
     const queryString = getQueryString();
+    console.log(JSON.parse(queryString));
     let limit = excelExport ? 10000 : 500;
     if (
       (queryString && excelExport) ||
@@ -121,7 +149,10 @@ const Layout = ({
     ) {
       client
         .query({
-          query: getVentasAllCentros,
+          query:
+            user.rolDesc !== "BRICOMART_CENTRO"
+              ? getVentasAllCentros
+              : getVentasByCentroFilter,
           variables: {
             limit: limit,
             fields: JSON.parse(queryString),
@@ -129,6 +160,7 @@ const Layout = ({
         })
         .then((res) => {
           //const results = res.data.ventas_bricomart;
+          console.log(res.data.ventas_bricomart);
           const results = setEstadoName(res.data.ventas_bricomart);
           if (!excelExport) {
             setRows(results);
@@ -143,7 +175,10 @@ const Layout = ({
     }
   };
 
-  useEffect(() => loadData());
+  useEffect(() => {
+    if (searchValue !== "") loadData();
+    else fetchVentas();
+  }, [searchValue]);
 
   return (
     <div>

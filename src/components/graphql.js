@@ -2,8 +2,8 @@ import ApolloClient, { InMemoryCache, gql } from "apollo-boost";
 
 export const client = new ApolloClient({
   //uri: 'http://63.33.70.172:8080/v1/graphql',
-  uri: "https://back-inpr.app.inpronet.es/v1/graphql",
-  //uri: "https://prod-back-inpronet.app.inpronet.es/v1/graphql",
+  //uri: "https://back-inpr.app.inpronet.es/v1/graphql",
+  uri: "https://prod-back-inpronet.app.inpronet.es/v1/graphql",
   fetch,
   request: (operation) => {
     operation.setContext({
@@ -49,8 +49,8 @@ export const getCentros = gql`
 
 // queries
 export const getVentasByCentro = gql`
-  query ventas($centroId: String!) {
-    ventas_bricomart(where: { centro_id: { _eq: $centroId } }) {
+  query ventas($centroId: String!, $limit: Int) {
+    ventas_bricomart(limit: $limit, where: { centro_id: { _eq: $centroId } }) {
       id
       cantidad
       centro
@@ -58,6 +58,35 @@ export const getVentasByCentro = gql`
       parteB_ruta
       estado_venta {
         estado: nombre
+      }
+      fecha_venta
+      localidad
+      marca
+      modelo
+      nif
+      nombre
+      nombre_via
+      numero_serie
+      provincia
+      razon_social
+      referencia
+      tipo_gas
+      tipo_via
+      zona
+    }
+  }
+`;
+
+export const getVentasByCentroFilter = gql`
+  query ventas($fields: ventas_bricomart_bool_exp, $limit: Int) {
+    ventas_bricomart(limit: $limit, where: $fields) {
+      id
+      cantidad
+      centro
+      parteA_ruta
+      parteB_ruta
+      estado_venta {
+        nombre
       }
       fecha_venta
       localidad
