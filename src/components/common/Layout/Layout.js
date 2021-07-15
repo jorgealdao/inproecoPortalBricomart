@@ -49,6 +49,7 @@ const Layout = ({
   dataFilters,
   setEstadoName,
 }) => {
+  const [isDeleted, setIsDeleted] = useState(false);
   const getRowId = (row) => row.id;
   const filterRowMessages = {
     filterPlaceholder: "Filtrar...",
@@ -95,7 +96,7 @@ const Layout = ({
     let filter = columns
       .reduce((acc, { name }) => {
         if (name === "id") {
-          console.log("id");
+          /* console.log("id"); */
           //acc.push(`{"${name}": {"_eq": "${searchValue}"}}`);
         } else if (name === "estado") {
           acc.push(
@@ -122,6 +123,7 @@ const Layout = ({
       client
         .query({
           query: getVentasAllCentros,
+          fetchPolicy: "no-cache",
           variables: {
             limit: limit,
             fields: JSON.parse(queryString),
@@ -143,7 +145,7 @@ const Layout = ({
     }
   };
 
-  useEffect(() => loadData());
+  useEffect(() => {loadData()}, [isDeleted]);
 
   return (
     <div>
@@ -199,7 +201,7 @@ const Layout = ({
                           />
                           <TableRowDetail
                             toggleCellComponent={(props) => (
-                              <RowVentaActions {...props} />
+                              <RowVentaActions {...props} setIsDeleted={setIsDeleted} />
                             )}
                           />
                           {/* INICIO RECOGER LAS LÍNEAS FILTRADAS */}

@@ -181,6 +181,18 @@ export const updateDocumentsPath = gql`
   }
 `;
 
+export const deleteVentaById = gql`
+  mutation delete_ventas_bricomart(
+    $ventaId: Int!
+  ) {
+    delete_ventas_bricomart(
+      where: { id: { _eq: $ventaId } }
+    ) {
+      affected_rows
+    }
+  }
+`;
+
 // FIN QUERIES BRICOMART
 
 export const getRetiradasGestor = gql`

@@ -1,5 +1,19 @@
-import React, { useState, useEffect, useCallback, useContext } from 'react'
-import { Col, Row, Form, FormGroup, Label, Input,  Button } from "reactstrap";
+import React, { useState, useEffect, useCallback } from "react";
+import { withRouter } from "react-router-dom";
+import {
+  Button,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  FormText,
+  Col, 
+  Row, 
+  Form, 
+  FormGroup, 
+  Label, 
+  Input 
+} from "reactstrap";
 import Dropzone from "react-dropzone";
 import moment from "moment";
 
@@ -13,15 +27,18 @@ import { API_INPRONET } from '../../../components/constants';
 import VentaSuccessModal from '../../../components/common/Modals/VentaSuccessModal';
 import VentaErrorDocumentoModal from '../../../components/common/Modals/VentaErrorDocumentoModal';
 
-const FormularioNuevaVenta = ({history}) => {
 
+const EditVentaModal = ({ editVentaModal, toggle, row }) => {
+    
     const [provincias, setProvincias] = useState();
     const [localidades, setLocalidades] = useState();
     const [centros, setCentros] = useState();
-    const [datosForm, setDatosForm] = useState({});
+    const [datosForm, setDatosForm] = useState(row);
     const [nifInvalido, setNifInvalido] = useState();
     const [almacen, setAlmacen] = useState(false);
     const [fecha, setFecha] = useState(false);
+    console.log(datosForm); 
+    
 
     // MODALES
     const [ventaSuccess, setVentaSuccess] = useState(false);
@@ -138,72 +155,13 @@ const FormularioNuevaVenta = ({history}) => {
         }
 
     }
-    /* const onChangeNif = (e) => {
-        let cif = e.target.value   
-        let DNI_REGEX = /^(\d{8})([A-Z])$/;
-        let CIF_REGEX = /^([ABCDEFGHJKLMNPQRSUVW])(\d{7})([0-9A-J])$/;
-        
-        cif = cif.toUpperCase();
-        if ( cif.match( DNI_REGEX ) ) {
-            setNifInvalido(false);
-            setDatosForm({...datosForm, nif: e.target.value})
-        let numero, lett, letra;
-        let expresion_regular_dni = /^[XYZ]?\d{5,8}[A-Z]$/;
-        
-            if(expresion_regular_dni.test(cif) === true){
-                numero = cif.substr(0,cif.length-1);
-                numero = numero.replace('X', 0);
-                numero = numero.replace('Y', 1);
-                numero = numero.replace('Z', 2);
-                lett = cif.substr(cif.length-1, 1);
-                numero = numero % 23;
-                letra = 'TRWAGMYFPDXBNJZSQVHLCKET';
-                letra = letra.substring(numero, numero+1);
-                if (letra != lett) {
-                    //Dni erroneo, la letra del NIF no se corresponde
-                    return false;
-                    
-                }else{
-                    //Dni correcto
-                    console.log(e.target.value);
-                    setDatosForm({...datosForm, nif: e.target.value})
-                    return true;
-                }
-
-            }else{
-                //Dni erroneo, formato no válido
-                return false;
-            }
-        }
-        else if ( cif.match( CIF_REGEX )) {     
-            let temp = cif
-            if (!/^[A-Za-z0-9]{9}$/.test(temp)){
-                
-                return false
-            }  else if (!/^[ABCDEFGHKLMNPQS]/.test(temp)){   
-                return false
-            } 
-            else{
-                setNifInvalido(false)
-                setDatosForm({...datosForm, nif: e.target.value})
-                return true;
-            } 
-        } 
-        else if (cif == ''){
-
-            setNifInvalido(false)
-
-        } else{
-            setNifInvalido(true)
-            return false
-        }
-    } */
 
     const onChangeFullName = (e) => {
         setDatosForm({...datosForm, nombre: e.target.value})
     }
 
     const onChangeApellido1 = (e) => {
+        row.apellido1 = e.target.value
         setDatosForm({...datosForm, apellido1: e.target.value})
     }
 
@@ -314,31 +272,6 @@ const FormularioNuevaVenta = ({history}) => {
             })
     }
 
-    /* const fetchZona = (centro) => {
-        client
-            .query({
-                query: getZonaByCentro,
-                variables: {
-                    centroId: centro
-                }
-            })
-            .then(res => {
-                fetchZonaName(res.data.getCentroProductor[0].ZONA_ID)
-            })
-    }
-
-    const fetchZonaName = (id) => {
-        client
-            .query({
-                query: getZonaName,
-                variables: {
-                    zonaId: id.toString()
-                }
-            })
-            .then(res => {
-                setDatosForm({...datosForm, zona_id: id.toString(), zona: res.data.getZona[0].nombre})
-            })
-    } */
 
     const onChangeCentro = (e) => {
         console.log(e.target.value, e.target.options[e.target.selectedIndex].text)
@@ -368,15 +301,9 @@ const FormularioNuevaVenta = ({history}) => {
         e.preventDefault();
         console.log(JSON.parse(setMutationString()))
         let ventaId;
-        const parteAId = await saveDocuments(newFiles, fileNames, "Bricomart Parte A")
-        if(!parteAId) {
-            toggleVentaErrorDocument()
-            return
-        }
-        let parteBId = "";
-        if(fileNamesB.length > 0) {
+       /*  if(fileNamesB.length > 0) {
             parteBId = await saveDocuments(newFilesB, fileNamesB, "Bricomart Parte B")    
-        }
+        } */
         await client
                 .mutate({
                     mutation: insertVentaBricomart,
@@ -387,13 +314,6 @@ const FormularioNuevaVenta = ({history}) => {
                 .then(res => {
                     ventaId = res.data.insert_ventas_bricomart.returning[0].id
                 })        
-        const pathParteA = await documentPath(parteAId)
-        let pathParteB;
-        if(parteBId) {
-            pathParteB = await documentPath(parteBId)
-        }
-        const isUpdated = await updateRutaVentaDocumento(ventaId, pathParteA, pathParteB)
-        if(isUpdated === 1) toggleVentaSuccess()
     }
 
     const documentPath = async (id) => {
@@ -425,21 +345,21 @@ const FormularioNuevaVenta = ({history}) => {
                 })
     }
 
-    const redirectToVentas = () => {
+    /* const redirectToVentas = () => {
         history.push("/crm/registro-ventas");
-      };
+      }; */
 
      useEffect(() => {
         fetchProvincias()
         fetchCentros()       
     }, [])
 
-    return (
-        <div>
-            <div className="content">
-                <section className="box">
-                    <div className= "content-body">
-                        <h2>Registro Nueva Venta</h2>
+   
+
+  return (
+    <Modal isOpen={editVentaModal} toggle={toggle} size="xl">
+      <ModalHeader>Editar Registro de Venta</ModalHeader>
+      <ModalBody>
                         <Form onSubmit={onSubmitForm}>
                             <Row form>
                                 <Col md={2}>
@@ -448,6 +368,7 @@ const FormularioNuevaVenta = ({history}) => {
                                         <Input
                                         type="text"
                                         onChange={onChangeNif}
+                                        value= {datosForm.nif}
                                         />
                                         {nifInvalido ? (
                                                     <div>Introduzca un número de identificación válido</div>
@@ -461,6 +382,7 @@ const FormularioNuevaVenta = ({history}) => {
                                         <Input
                                         type="text"
                                         onChange={onChangeFullName}
+                                        value= {datosForm.nombre}
                                         />
                                     </FormGroup>
                                 </Col>
@@ -470,6 +392,7 @@ const FormularioNuevaVenta = ({history}) => {
                                         <Input
                                         type="text"
                                         onChange={onChangeApellido1}
+                                        value= {datosForm.apellido1}
                                         />
                                     </FormGroup>
                                 </Col>
@@ -479,6 +402,7 @@ const FormularioNuevaVenta = ({history}) => {
                                         <Input
                                         type="text"
                                         onChange={onChangeApellido2}
+                                        value= {datosForm.apellido2}
                                         />
                                     </FormGroup>
                                 </Col>
@@ -490,6 +414,7 @@ const FormularioNuevaVenta = ({history}) => {
                                         <Input
                                         type="text"
                                         onChange={onChangeRazonSocial}
+                                        value= {datosForm.razon_social}
                                         />
                                     </FormGroup>
                                 </Col>
@@ -501,6 +426,7 @@ const FormularioNuevaVenta = ({history}) => {
                                         <Input
                                         type="text"
                                         onChange={onChangeTipoVia}
+                                        value= {datosForm.tipo_via}
                                         />
                                     </FormGroup>
                                 </Col>
@@ -510,6 +436,7 @@ const FormularioNuevaVenta = ({history}) => {
                                         <Input
                                         type="text"
                                         onChange={onChangeNombreVia}
+                                        value= {datosForm.nombre_via}
                                         />
                                     </FormGroup>
                                 </Col>
@@ -519,6 +446,7 @@ const FormularioNuevaVenta = ({history}) => {
                                         <Input
                                         type="text"
                                         onChange={onChangeNumero}
+                                        value= {datosForm.numero}
                                         />
                                     </FormGroup>
                                 </Col>
@@ -528,6 +456,7 @@ const FormularioNuevaVenta = ({history}) => {
                                         <Input
                                         type="text"
                                         onChange={onChangePiso}
+                                        value= {datosForm.piso}
                                         />
                                     </FormGroup>
                                 </Col>
@@ -537,6 +466,7 @@ const FormularioNuevaVenta = ({history}) => {
                                         <Input
                                         type="text"
                                         onChange={onChangePuerta}
+                                        value= {datosForm.puerta}
                                         />
                                     </FormGroup>
                                 </Col>
@@ -546,6 +476,7 @@ const FormularioNuevaVenta = ({history}) => {
                                         <Input
                                         type="text"
                                         onChange={onChangeCodigoPostal}
+                                        value= {datosForm.codigo_postal}
                                         />
                                     </FormGroup>
                                 </Col>
@@ -557,8 +488,9 @@ const FormularioNuevaVenta = ({history}) => {
                                         <Input
                                         type="select"
                                         onChange= {onChangeProvincia}
+                                        value= {datosForm.provincia}
                                         >
-                                            <option disabled selected defaultValue> -- Seleccionar -- </option>
+                                            <option disabled selected defaultValue> {datosForm.provincia}</option>
                                             {provincias && provincias.map(provincia=>{ 
                                                 return (
                                                 <option key={provincia.ID} value={provincia.ID} >{provincia.NOMBRE}</option>
@@ -573,8 +505,9 @@ const FormularioNuevaVenta = ({history}) => {
                                         <Input
                                         type="select"
                                         onChange={onChangeMunicipio}
+                                        value= {datosForm.localidad}
                                         >
-                                            <option disabled selected defaultValue> -- Seleccionar -- </option>
+                                            <option disabled selected defaultValue> {datosForm.localidad} </option>
                                             {localidades && localidades.map(localidad=>{ 
                                                 return (
                                                 <option key={localidad.ID} value={localidad.ID} >{localidad.NOMBRE}</option>
@@ -591,6 +524,7 @@ const FormularioNuevaVenta = ({history}) => {
                                         <Input
                                         type="text"
                                         onChange={onChangeMarca}
+                                        value= {datosForm.marca}
                                         />
                                     </FormGroup>
                                 </Col>
@@ -600,6 +534,7 @@ const FormularioNuevaVenta = ({history}) => {
                                         <Input
                                         type="text"
                                         onChange={onChangeModelo}
+                                        value= {datosForm.modelo}
                                         />
                                     </FormGroup>
                                 </Col>
@@ -611,15 +546,17 @@ const FormularioNuevaVenta = ({history}) => {
                                         <Input
                                         type="text"
                                         onChange={onChangeReferencia}
+                                        value= {datosForm.referencia}
                                         />
                                     </FormGroup>
                                 </Col>
                                 <Col md={3}>
                                     <FormGroup>
-                                        <Label>Número de Serie</Label>
+                                        <Label>Nº de Serie</Label>
                                         <Input
                                         type="text"
                                         onChange={onChangeNumeroSerie}
+                                        value= {datosForm.numero_serie}
                                         />
                                     </FormGroup>
                                 </Col>
@@ -629,6 +566,7 @@ const FormularioNuevaVenta = ({history}) => {
                                         <Input
                                         type="number"
                                         onChange={onChangeCantidad}
+                                        value= {datosForm.cantidad}
                                         />
                                     </FormGroup>
                                 </Col>
@@ -638,110 +576,42 @@ const FormularioNuevaVenta = ({history}) => {
                                         <Input
                                         type="text"
                                         onChange={onChangeTipoGas}
+                                        value= {datosForm.tipo_gas}
                                         />
                                     </FormGroup>
                                 </Col>
                             </Row>
                             <Row form>
-                                <Col md={3}>
+                                <Col md={6}>
                                     <FormGroup>
-                                        <Label>Fecha Venta*</Label>
+                                        <Label>Fecha Venta</Label>
                                         <Input
                                         type="date"
                                         placeholder="date placeholder"
                                         onChange={onChangeFechaVenta}
+                                        value= {datosForm.fecha_venta}
                                         />
-                                         {!fecha ? (
-                                                    <div>Por favor, seleccione una fecha</div>
-                                                ) : (<></>)
-                                            }
                                     </FormGroup>
                                 </Col>
-                                <Col md={4}>
+                                <Col md={6}>
                                     <FormGroup>
-                                        <Label>Almacén*</Label>
+                                        <Label>Almacén</Label>
                                         <Input
                                         type="select"
                                         onChange={onChangeCentro}
+                                        value= {datosForm.centro}
                                         >
-                                            <option disabled selected defaultValue> -- Seleccionar -- </option>
+                                            <option disabled selected defaultValue>value= {datosForm.centro}</option>
                                             {centros && centros.map(centro=>{ 
                                                 return (
                                                 <option key={centro.ID} value={centro.ID} >{centro.DENOMINACION}</option>
                                                 )
                                             })}
                                         </Input>
-                                        {!almacen ? (
-                                                    <div>Por favor, seleccione un almacén</div>
-                                                ) : (<></>)
-                                            }
                                     </FormGroup>
                                 </Col>
                             </Row>
                             <Row form>
-                                <Col md={4}>
-                                <Label>Añadir parte A*:</Label>
-                                <Dropzone onDrop={onDropA}>
-                                    {({
-                                        getRootProps,
-                                        getInputProps,
-                                        isDragActive,
-                                        isDragAccept,
-                                        isDragReject,
-                                    }) => {
-                                        const additionalClass = isDragAccept
-                                        ? "accept"
-                                        : isDragReject
-                                        ? "reject"
-                                        : "";
-
-                                        return (
-                                        <div
-                                            {...getRootProps({
-                                            className: `dropzone ${additionalClass}`,
-                                            })}
-                                        >
-                                            <input {...getInputProps()} />
-                                            <span>{isDragActive ? "📂" : "📁"}</span>
-                                        </div>
-                                        );
-                                    }}
-                                </Dropzone>
-                                    <div>
-                                    {fileNames.length > 0 ? <strong>Documentos:</strong> : <></>}
-                                    <ul>
-                                        {fileNames.map((fileName) => (
-                                        <li key={fileName.NOMBRE}>
-                                            <span className="filename-list">{fileName.NOMBRE}</span>
-                                            {/* {fileName.IS_NEW ? (
-                                            <select
-                                                name={fileName.NOMBRE}
-                                                value={fileName.TIPO_DOCUMENTO_ID}
-                                                style={{ width: "280px" }}
-                                                onChange={changeType}
-                                            >
-                                                {tipoDocumentos.map(({ ID, nombre }) => (
-                                                <option key={ID} value={ID}>
-                                                    {nombre}
-                                                </option>
-                                                ))}
-                                            </select>
-                                            ) : (
-                                            <button>{fileName.TIPO_DOCUMENTO[0].NOMBRE}</button>
-                                            )} */}
-                                            {fileName.IS_NEW && (
-                                            <span
-                                                className="delete-document"
-                                                onClick={() => quitarDocumentoA(fileName)}
-                                            >
-                                                <Button color="danger">Eliminar</Button>
-                                            </span>
-                                            )}
-                                        </li>
-                                        ))}
-                                    </ul>
-                                    </div>
-                                </Col>
                                 <Col md={4}>
                                 <Label>Añadir parte B:</Label>
                                 <Dropzone onDrop={onDropB}>
@@ -808,7 +678,7 @@ const FormularioNuevaVenta = ({history}) => {
                             </Row>
                             <Row form> 
                                 <Col md={2}>
-                                    {nifInvalido || !almacen || !fecha ? (
+                                     {nifInvalido ? (
                                         <Button type="submit" disabled>
                                                 Guardar 
                                         </Button>
@@ -816,24 +686,16 @@ const FormularioNuevaVenta = ({history}) => {
                                         <Button color="primary" type="submit">
                                             Guardar 
                                         </Button>)
-                                    }
+                                    }    
                                  </Col>
                             </Row>
                         </Form>
-                    </div>
-                </section>
-            </div>
-            {/* MODALES */}
-            {ventaSuccess ? (
-                    <VentaSuccessModal ventaSuccess={ventaSuccess} toggle={toggleVentaSuccess} redirectToVentas={redirectToVentas} />
-                ) : (<></>)
-            }
-            {ventaErrorDocument ? (
-                    <VentaErrorDocumentoModal ventaErrorDocument={ventaErrorDocument} toggle={toggleVentaErrorDocument} />
-                ) : (<></>)
-            }
-        </div>
-    )
-}
+      </ModalBody>
+      <ModalFooter>
+        <Button onClick={toggle} color="primary">Cerrar</Button>
+      </ModalFooter>
+    </Modal>
+  );
+};
 
-export default FormularioNuevaVenta
+export default EditVentaModal;
