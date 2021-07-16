@@ -24,6 +24,7 @@ import {
   getZonaByCentro,
   getZonaName,
   getDocumentPath,
+  updateParteB,
   updateDocumentsPath,
   updateVentaById,
 } from "../../../components/graphql";
@@ -278,7 +279,7 @@ const EditVentaModal = ({ editVentaModal, toggle, row }) => {
     delete newObject.estado_venta;
     delete newObject.estado;
     setDatosForm(newObject);
-    return JSON.stringify(newObject);
+    return JSON.stringify(datosForm);
   };
 
   const existsParteB = () => {
@@ -288,22 +289,43 @@ const EditVentaModal = ({ editVentaModal, toggle, row }) => {
   const onSubmitForm = async (e) => {
     e.preventDefault();
     console.log(JSON.parse(setMutationString()));
-    let ventaId = row.id;
+    let updatedSale = false;
     await client
       .mutate({
         mutation: updateVentaById,
         variables: {
-          ventaId: ventaId,
+          ventaId: row.id,
           _set: JSON.parse(setMutationString()),
         },
       })
-      .then((res) => {
+      .then(async (res) => {
         console.log(res.data.update_ventas_bricomart.affected_rows);
         if (res.data.update_ventas_bricomart.affected_rows === 1) {
-          toggle();
-          loadVentas();
+          updatedSale = true;
+        } else {
+          console.log("error");
         }
       });
+
+    if (updatedSale && existsParteB()) {
+      let pathParteB;
+      let parteBId = await saveDocuments(
+        newFilesB,
+        fileNamesB,
+        "Bricomart Parte B"
+      );
+      if (parteBId) {
+        pathParteB = await documentPath(parteBId);
+      }
+      const isUpdated = await updateRutaVentaDocumento(row.id, pathParteB);
+      if (isUpdated === 1) {
+        loadVentas();
+        toggle();
+      }
+    } else {
+      loadVentas();
+      toggle();
+    }
   };
 
   const documentPath = async (id) => {
@@ -320,13 +342,12 @@ const EditVentaModal = ({ editVentaModal, toggle, row }) => {
       });
   };
 
-  const updateRutaVentaDocumento = async (ventaId, parteA, parteB) => {
+  const updateRutaVentaDocumento = async (ventaId, parteB) => {
     return client
       .mutate({
-        mutation: updateDocumentsPath,
+        mutation: updateParteB,
         variables: {
           ventaId: ventaId,
-          parteAPath: parteA,
           parteBPath: parteB,
         },
       })
@@ -346,7 +367,7 @@ const EditVentaModal = ({ editVentaModal, toggle, row }) => {
     fetchProvincias();
     fetchCentros();
   }, []);
-  console.log(datosForm);
+
   return (
     <Modal isOpen={editVentaModal} toggle={toggle} size="xl">
       <ModalHeader>Editar Registro de Venta</ModalHeader>

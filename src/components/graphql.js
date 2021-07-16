@@ -231,6 +231,17 @@ export const updateDocumentsPath = gql`
   }
 `;
 
+export const updateParteB = gql`
+  mutation update_ventas_bricomart($ventaId: Int!, $parteBPath: String) {
+    update_ventas_bricomart(
+      where: { id: { _eq: $ventaId } }
+      _set: { parteB_ruta: $parteBPath }
+    ) {
+      affected_rows
+    }
+  }
+`;
+
 export const deleteVentaById = gql`
   mutation delete_ventas_bricomart($ventaId: Int!) {
     delete_ventas_bricomart(where: { id: { _eq: $ventaId } }) {
