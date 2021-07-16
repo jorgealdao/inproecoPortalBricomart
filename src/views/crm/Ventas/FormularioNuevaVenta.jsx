@@ -118,6 +118,34 @@ const FormularioNuevaVenta = ({history}) => {
     // COGER VALORES INPUTS
     const onChangeNif = (e) => {
         let cif = e.target.value   
+        let validChars = 'TRWAGMYFPDXBNJZSQVHLCKET';
+        let nifRexp = /^[0-9]{8}[TRWAGMYFPDXBNJZSQVHLCKET]{1}$/i;
+        let nieRexp = /^[XYZ]{1}[0-9]{7}[TRWAGMYFPDXBNJZSQVHLCKET]{1}$/i;
+        let str = cif.toString().toUpperCase();
+
+        if (!nifRexp.test(str) && !nieRexp.test(str)) {
+            setNifInvalido(true);
+            }
+
+        let nie = str
+            .replace(/^[X]/, '0')
+            .replace(/^[Y]/, '1')
+            .replace(/^[Z]/, '2');
+
+        let letter = str.substr(-1);
+        let charIndex = parseInt(nie.substr(0, 8)) % 23;
+
+        if (validChars.charAt(charIndex) === letter || cif === ""){
+            setNifInvalido(false);
+            setDatosForm({...datosForm, nif: e.target.value})
+        } else {
+            setNifInvalido(true);
+            
+        }
+
+    }
+    /* const onChangeNif = (e) => {
+        let cif = e.target.value   
         let DNI_REGEX = /^(\d{8})([A-Z])$/;
         let CIF_REGEX = /^([ABCDEFGHJKLMNPQRSUVW])(\d{7})([0-9A-J])$/;
         
@@ -175,7 +203,7 @@ const FormularioNuevaVenta = ({history}) => {
             setNifInvalido(true)
             return false
         }
-    }
+    } */
 
     const onChangeFullName = (e) => {
         setDatosForm({...datosForm, nombre: e.target.value})
@@ -291,7 +319,6 @@ const FormularioNuevaVenta = ({history}) => {
                 }
             })
             .then(res => {
-                console.log(res.data.getCentrosProductoresView)
                 setDatosForm({...datosForm, centro_id: centroId, centro: res.data.getCentrosProductoresView[0].nombre})
             })
     }
@@ -354,7 +381,7 @@ const FormularioNuevaVenta = ({history}) => {
 
     const onSubmitForm = async (e) => {
         e.preventDefault();
-        console.log(JSON.parse(setMutationString()))
+        //console.log(JSON.parse(setMutationString()))
         let ventaId;
         const parteAId = await saveDocuments(newFiles, fileNames, "Bricomart Parte A")
         if(!parteAId) {

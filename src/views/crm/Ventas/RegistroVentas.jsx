@@ -18,6 +18,7 @@ const RegistroVentas = () => {
     const { centroId } = user; 
     const columns = REGISTRO_VENTAS_COLUMNS;
     const [ventas, setVentas] = useState(null)
+    const [lastQuery, setLastQuery] = useState();
 
     const fetchVentas = () => {
         if(user.rolDesc === "BRICOMART_CENTRO" || user.rolDesc === "BRICOMART_INPROECO_CENTRO") fetchVentasRoleCentro()
@@ -35,7 +36,7 @@ const RegistroVentas = () => {
                 }
             })
             .then(res => {
-                console.log(res)
+                //console.log(res)
                 setVentas(setEstadoName(res.data.ventas_bricomart))
             })
     }, [client, getVentasByCentro])
@@ -47,6 +48,7 @@ const RegistroVentas = () => {
                 fetchPolicy: "no-cache",
                 variables: {
                     limit: 500,
+                    fields: lastQuery
                   },
             })
             .then(res => {
@@ -87,6 +89,8 @@ const RegistroVentas = () => {
             fetchVentas={fetchVentas}
             setEstadoName={setEstadoName}
             user={user}
+            lastQuery={lastQuery}
+            setLastQuery={setLastQuery}
         >
             <FilteringState defaultFilters={[]} />
             <IntegratedFiltering />

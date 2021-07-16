@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useContext,
+} from "react";
 import { Row, Col } from "reactstrap";
 import {
   IntegratedSorting,
@@ -37,6 +43,9 @@ import RowVentaActions from "../Icons/RowVentaActions";
 // CONSTANTS
 import { compareDates } from "./../../constants";
 
+// CONTEXT
+import { GlobalDispatchContext } from "../../../context/GlobalContext";
+
 // GRAPHQL
 import {
   client,
@@ -53,7 +62,10 @@ const Layout = ({
   fetchVentas,
   setEstadoName,
   user,
+  lastQuery,
+  setLastQuery,
 }) => {
+  const dispatch = useContext(GlobalDispatchContext);
   const getRowId = (row) => row.id;
   const filterRowMessages = {
     filterPlaceholder: "Filtrar...",
@@ -94,7 +106,7 @@ const Layout = ({
   // FILTRO BÚSQUEDA
   const [loading, setLoading] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const [lastQuery, setLastQuery] = useState();
+  //const [lastQuery, setLastQuery] = useState();
 
   const getQueryString = () => {
     let filter;
@@ -125,7 +137,7 @@ const Layout = ({
     filter = columns
       .reduce((acc, { name }) => {
         if (name === "id") {
-          console.log("id");
+          /* console.log("id"); */
           //acc.push(`{"${name}": {"_eq": "${searchValue}"}}`);
         } else if (name === "estado") {
           acc.push(
@@ -144,7 +156,7 @@ const Layout = ({
 
   const loadData = (excelExport = false) => {
     const queryString = getQueryString();
-    console.log(JSON.parse(queryString));
+    //console.log(JSON.parse(queryString));
     let limit = excelExport ? 10000 : 500;
     if (
       (queryString && excelExport) ||
@@ -157,6 +169,7 @@ const Layout = ({
             user.rolDesc !== "BRICOMART_INPROECO_CENTRO"
               ? getVentasAllCentros
               : getVentasByCentroFilter,
+          fetchPolicy: "no-cache",
           variables: {
             limit: limit,
             fields: JSON.parse(queryString),
@@ -177,8 +190,12 @@ const Layout = ({
   };
 
   useEffect(() => {
-    if (searchValue !== "") loadData();
-    else fetchVentas();
+    dispatch({ type: "SET_LOAD_VENTAS", payload: { loadVentas: loadData } });
+    if (searchValue !== "") {
+      loadData();
+    } else {
+      fetchVentas();
+    }
   }, [searchValue]);
 
   return (
