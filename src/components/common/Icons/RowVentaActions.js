@@ -1,10 +1,13 @@
 import React from "react";
 import ShowDocuments from "./ShowDocuments";
+import ShowDeleteVenta from "./ShowDeleteVenta";
+import ShowEditVenta from "./ShowEditVenta";
 
 const RowVentaActions = (props) => {
-  const { row } = props;
+  const { row, setIsDeleted } = props;
 
   return (
+    <>
     <td
       style={{
         cursor: "pointer",
@@ -15,7 +18,10 @@ const RowVentaActions = (props) => {
       {...props.restProps}
     >
       <ShowDocuments {...props} />
+      <ShowDeleteVenta {...props} />
+      <ShowEditVenta {...props} />
     </td>
+    </>
   );
 };
 

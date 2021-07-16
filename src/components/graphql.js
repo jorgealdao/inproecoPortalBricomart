@@ -2,8 +2,8 @@ import ApolloClient, { InMemoryCache, gql } from "apollo-boost";
 
 export const client = new ApolloClient({
   //uri: 'http://63.33.70.172:8080/v1/graphql',
-  //uri: "https://back-inpr.app.inpronet.es/v1/graphql",
-  uri: "https://prod-back-inpronet.app.inpronet.es/v1/graphql",
+  uri: "https://back-inpr.app.inpronet.es/v1/graphql",
+  //uri: "https://prod-back-inpronet.app.inpronet.es/v1/graphql",
   fetch,
   request: (operation) => {
     operation.setContext({
@@ -205,6 +205,25 @@ export const updateDocumentsPath = gql`
       where: { id: { _eq: $ventaId } }
       _set: { parteA_ruta: $parteAPath, parteB_ruta: $parteBPath }
     ) {
+      affected_rows
+    }
+  }
+`;
+
+export const deleteVentaById = gql`
+  mutation delete_ventas_bricomart($ventaId: Int!) {
+    delete_ventas_bricomart(where: { id: { _eq: $ventaId } }) {
+      affected_rows
+    }
+  }
+`;
+
+export const updateVentaById = gql`
+  mutation update_ventas_bricomart(
+    $ventaId: Int!
+    $_set: ventas_bricomart_set_input
+  ) {
+    update_ventas_bricomart(where: { id: { _eq: $ventaId } }, _set: $_set) {
       affected_rows
     }
   }

@@ -6546,6 +6546,8 @@ body .show > .btn-primary.dropdown-toggle:focus,
 /*------------------------------------
      Modals 
  ------------------------------------*/
+/* .modals-area.row{
+} */
 .modal-header .close {
   margin: -7px -1rem -8px auto; }
 

@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useContext,
+} from "react";
 import { Row, Col } from "reactstrap";
 import {
   IntegratedSorting,
@@ -37,6 +43,9 @@ import RowVentaActions from "../Icons/RowVentaActions";
 // CONSTANTS
 import { compareDates } from "./../../constants";
 
+// CONTEXT
+import { GlobalDispatchContext } from "../../../context/GlobalContext";
+
 // GRAPHQL
 import {
   client,
@@ -53,7 +62,11 @@ const Layout = ({
   fetchVentas,
   setEstadoName,
   user,
+  lastQuery,
+  setLastQuery,
 }) => {
+  const dispatch = useContext(GlobalDispatchContext);
+  const [isDeleted, setIsDeleted] = useState(false);
   const getRowId = (row) => row.id;
   const filterRowMessages = {
     filterPlaceholder: "Filtrar...",
@@ -94,7 +107,7 @@ const Layout = ({
   // FILTRO BÚSQUEDA
   const [loading, setLoading] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const [lastQuery, setLastQuery] = useState();
+  //const [lastQuery, setLastQuery] = useState();
 
   const getQueryString = () => {
     let filter;
@@ -122,7 +135,7 @@ const Layout = ({
     filter = columns
       .reduce((acc, { name }) => {
         if (name === "id") {
-          console.log("id");
+          /* console.log("id"); */
           //acc.push(`{"${name}": {"_eq": "${searchValue}"}}`);
         } else if (name === "estado") {
           acc.push(
@@ -138,7 +151,7 @@ const Layout = ({
     }
     return `{"_and":[{"centro_id":{"_eq":"${user.centroId}"}}, {"_or":[${filter}]}]}`;
   };
-  //{_and: [{centro_id: {_eq: "691"}}, {_or: [{id: {_eq: 50}}, {nombre: {_ilike:"%aim%"}}]}]}
+
   const loadData = (excelExport = false) => {
     const queryString = getQueryString();
     console.log(JSON.parse(queryString));
@@ -153,13 +166,13 @@ const Layout = ({
             user.rolDesc !== "BRICOMART_CENTRO"
               ? getVentasAllCentros
               : getVentasByCentroFilter,
+          fetchPolicy: "no-cache",
           variables: {
             limit: limit,
             fields: JSON.parse(queryString),
           },
         })
         .then((res) => {
-          //const results = res.data.ventas_bricomart;
           console.log(res.data.ventas_bricomart);
           const results = setEstadoName(res.data.ventas_bricomart);
           if (!excelExport) {
@@ -176,8 +189,12 @@ const Layout = ({
   };
 
   useEffect(() => {
-    if (searchValue !== "") loadData();
-    else fetchVentas();
+    dispatch({ type: "SET_LOAD_VENTAS", payload: { loadVentas: loadData } });
+    if (searchValue !== "") {
+      loadData();
+    } else {
+      fetchVentas();
+    }
   }, [searchValue]);
 
   return (
@@ -234,7 +251,10 @@ const Layout = ({
                           />
                           <TableRowDetail
                             toggleCellComponent={(props) => (
-                              <RowVentaActions {...props} />
+                              <RowVentaActions
+                                {...props}
+                                setIsDeleted={setIsDeleted}
+                              />
                             )}
                           />
                           {/* INICIO RECOGER LAS LÍNEAS FILTRADAS */}

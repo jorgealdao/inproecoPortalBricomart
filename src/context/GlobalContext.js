@@ -18,6 +18,7 @@ const initialState = {
   gestorSelectedFactura: null,
   newGastosResiduo: [],
   newOtrosGastos: [],
+  loadVentas: null,
 };
 
 const reducer = (state, action) => {
@@ -58,6 +59,8 @@ const reducer = (state, action) => {
       sessionStorage.removeItem("isAllowed");
 
       return { ...state, token: null, user: null, isAllowed: null };
+    case "SET_LOAD_VENTAS":
+      return { ...state, loadVentas: action.payload.loadVentas };
     case "SET_CENTRO_SELECTED_FACTURA":
       return {
         ...state,
