@@ -129,7 +129,7 @@ const FormularioNuevaVenta = ({history}) => {
         let letter = str.substr(-1);
         let charIndex = parseInt(nie.substr(0, 8)) % 23;
 
-        if (validChars.charAt(charIndex) === letter){
+        if (validChars.charAt(charIndex) === letter || cif === ""){
             setNifInvalido(false);
             setDatosForm({...datosForm, nif: e.target.value})
         } else {

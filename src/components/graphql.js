@@ -52,6 +52,8 @@ export const getVentasByCentro = gql`
   query ventas($centroId: String!, $limit: Int) {
     ventas_bricomart(limit: $limit, where: { centro_id: { _eq: $centroId } }) {
       id
+      apellido1
+      apellido2
       cantidad
       centro
       parteA_ruta
@@ -59,6 +61,7 @@ export const getVentasByCentro = gql`
       estado_venta {
         estado: nombre
       }
+      estado_id
       fecha_venta
       localidad
       marca
@@ -66,6 +69,10 @@ export const getVentasByCentro = gql`
       nif
       nombre
       nombre_via
+      numero
+      piso
+      puerta
+      codigo_postal
       numero_serie
       provincia
       razon_social
@@ -81,6 +88,8 @@ export const getVentasByCentroFilter = gql`
   query ventas($fields: ventas_bricomart_bool_exp, $limit: Int) {
     ventas_bricomart(limit: $limit, where: $fields) {
       id
+      apellido1
+      apellido2
       cantidad
       centro
       parteA_ruta
@@ -88,6 +97,7 @@ export const getVentasByCentroFilter = gql`
       estado_venta {
         nombre
       }
+      estado_id
       fecha_venta
       localidad
       marca
@@ -96,6 +106,10 @@ export const getVentasByCentroFilter = gql`
       nombre
       nombre_via
       numero_serie
+      numero
+      piso
+      puerta
+      codigo_postal
       provincia
       razon_social
       referencia
@@ -110,6 +124,8 @@ export const getVentasAllCentros = gql`
   query ventas($fields: ventas_bricomart_bool_exp, $limit: Int) {
     ventas_bricomart(limit: $limit, where: $fields) {
       id
+      apellido1
+      apellido2
       cantidad
       centro
       parteA_ruta
@@ -117,6 +133,7 @@ export const getVentasAllCentros = gql`
       estado_venta {
         nombre
       }
+      estado_id
       fecha_venta
       localidad
       marca
@@ -125,6 +142,10 @@ export const getVentasAllCentros = gql`
       nombre
       nombre_via
       numero_serie
+      numero
+      piso
+      puerta
+      codigo_postal
       provincia
       razon_social
       referencia
