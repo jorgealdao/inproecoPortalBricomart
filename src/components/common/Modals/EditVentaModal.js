@@ -18,7 +18,7 @@ import Dropzone from "react-dropzone";
 import moment from "moment";
 
 //graphql
-import { client, getProvincias, getMunicipiosByProvincia, getCentros, insertVentaBricomart, getZonaByCentro, getZonaName, getDocumentPath, updateDocumentsPath } from '../../../components/graphql';
+import { client, getProvincias, getMunicipiosByProvincia, getCentros, insertVentaBricomart, getZonaByCentro, getZonaName, getDocumentPath, updateDocumentsPath, updateVentaById } from '../../../components/graphql';
 
 // constants
 import { API_INPRONET } from '../../../components/constants';
@@ -35,8 +35,8 @@ const EditVentaModal = ({ editVentaModal, toggle, row }) => {
     const [centros, setCentros] = useState();
     const [datosForm, setDatosForm] = useState(row);
     const [nifInvalido, setNifInvalido] = useState();
-    const [almacen, setAlmacen] = useState(false);
-    const [fecha, setFecha] = useState(false);
+    /* const [almacen, setAlmacen] = useState(false); */
+    /* const [fecha, setFecha] = useState(false); */
     console.log(datosForm); 
     
 
@@ -60,21 +60,6 @@ const EditVentaModal = ({ editVentaModal, toggle, row }) => {
      const [newFilesB, setNewFilesB] = useState([]);
      const [uploadFilesB, setUploadFilesB] = useState([]);
 
-    const onDropA = useCallback((acceptedFiles) => {
-        setNewFiles(newFiles.concat(acceptedFiles));
-        let newFileNames = [];
-        acceptedFiles.forEach((file) => {
-          newFileNames.push({
-            NOMBRE: file.name,
-            RUTA: "",
-            TIPO_DOCUMENTO_ID: "",
-            IS_NEW: true,
-          });
-        });
-        const files = fileNames.concat(newFileNames);
-        setFileNames(files);
-        setUploadFiles(acceptedFiles); 
-      });
 
       const onDropB = useCallback((acceptedFiles) => {
         setNewFilesB(newFilesB.concat(acceptedFiles));
@@ -116,10 +101,7 @@ const EditVentaModal = ({ editVentaModal, toggle, row }) => {
       }
     }
 
-    const quitarDocumentoA = (name) => {
-    setNewFiles(newFiles.filter((item) => item.name !== name.NOMBRE));
-    setFileNames(fileNames.filter((item) => item !== name));
-    };
+    
 
     const quitarDocumentoB = (name) => {
         setNewFilesB(newFilesB.filter((item) => item.name !== name.NOMBRE));
@@ -208,7 +190,7 @@ const EditVentaModal = ({ editVentaModal, toggle, row }) => {
     const onChangeFechaVenta = (e) => {
         const dateFormatted = moment(e.target.value).format("DD/MM/YYYY");
         setDatosForm({...datosForm, fecha_venta: dateFormatted});
-        setFecha(true);
+        /* setFecha(true); */
     }
 
     const onChangeMarca = (e) => {
@@ -274,14 +256,8 @@ const EditVentaModal = ({ editVentaModal, toggle, row }) => {
 
 
     const onChangeCentro = (e) => {
-        console.log(e.target.value, e.target.options[e.target.selectedIndex].text)
+        /* console.log(e.target.value, e.target.options[e.target.selectedIndex].text) */
         setDatosForm({...datosForm, centro_id: e.target.value, centro: e.target.options[e.target.selectedIndex].text})
-        setAlmacen(true)
-        /*  if (almacen == false) {
-           setAlmacen(true)
-           console.log(almacen);
-        } */
-        //fetchZona(e.target.value)
     }
 
     // FORMATEAR DATOS PARA ENVIAR
@@ -293,26 +269,21 @@ const EditVentaModal = ({ editVentaModal, toggle, row }) => {
         return fileNamesB.length > 0
     }
 
-    useEffect(() => {
-        !existsParteB() ? setDatosForm({...datosForm, estado_id: 2}) : setDatosForm({...datosForm, estado_id: 3})
-    }, [fileNamesB])
 
     const onSubmitForm = async (e) => {
         e.preventDefault();
         console.log(JSON.parse(setMutationString()))
-        let ventaId;
-       /*  if(fileNamesB.length > 0) {
-            parteBId = await saveDocuments(newFilesB, fileNamesB, "Bricomart Parte B")    
-        } */
+        let ventaId = row.id;
         await client
                 .mutate({
-                    mutation: insertVentaBricomart,
+                    mutation: updateVentaById,
                     variables: {
-                        fields: JSON.parse(setMutationString())
+                        ventaId: ventaId,
+                        _set: JSON.parse(setMutationString())
                     }
                 })
                 .then(res => {
-                    ventaId = res.data.insert_ventas_bricomart.returning[0].id
+                   return res
                 })        
     }
 
@@ -601,7 +572,7 @@ const EditVentaModal = ({ editVentaModal, toggle, row }) => {
                                         onChange={onChangeCentro}
                                         value= {datosForm.centro}
                                         >
-                                            <option disabled selected defaultValue>value= {datosForm.centro}</option>
+                                            <option disabled selected defaultValue>{datosForm.centro}</option>
                                             {centros && centros.map(centro=>{ 
                                                 return (
                                                 <option key={centro.ID} value={centro.ID} >{centro.DENOMINACION}</option>

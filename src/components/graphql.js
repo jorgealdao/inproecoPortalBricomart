@@ -193,6 +193,20 @@ export const deleteVentaById = gql`
   }
 `;
 
+export const updateVentaById = gql`
+  mutation update_ventas_bricomart(
+    $ventaId: Int!
+    $_set: ventas_bricomart_set_input
+  ) {
+    update_ventas_bricomart(
+      where: { id: { _eq: $ventaId } }
+      _set: $_set
+    ) {
+      affected_rows
+    }
+  }
+`;
+
 // FIN QUERIES BRICOMART
 
 export const getRetiradasGestor = gql`
