@@ -356,7 +356,7 @@ const FormularioNuevaVenta = ({history}) => {
         e.preventDefault();
         console.log(JSON.parse(setMutationString()))
         let ventaId;
-        /* const parteAId = await saveDocuments(newFiles, fileNames, "Bricomart Parte A")
+        const parteAId = await saveDocuments(newFiles, fileNames, "Bricomart Parte A")
         if(!parteAId) {
             toggleVentaErrorDocument()
             return
@@ -364,7 +364,7 @@ const FormularioNuevaVenta = ({history}) => {
         let parteBId = "";
         if(fileNamesB.length > 0) {
             parteBId = await saveDocuments(newFilesB, fileNamesB, "Bricomart Parte B")    
-        } */
+        }
         await client
                 .mutate({
                     mutation: insertVentaBricomart,
@@ -375,13 +375,13 @@ const FormularioNuevaVenta = ({history}) => {
                 .then(res => {
                     ventaId = res.data.insert_ventas_bricomart.returning[0].id
                 })        
-        /* const pathParteA = await documentPath(parteAId)
+        const pathParteA = await documentPath(parteAId)
         let pathParteB;
         if(parteBId) {
             pathParteB = await documentPath(parteBId)
         }
         const isUpdated = await updateRutaVentaDocumento(ventaId, pathParteA, pathParteB)
-        if(isUpdated === 1) toggleVentaSuccess() */
+        if(isUpdated === 1) toggleVentaSuccess()
     }
 
     const documentPath = async (id) => {
