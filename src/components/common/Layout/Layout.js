@@ -98,7 +98,10 @@ const Layout = ({
 
   const getQueryString = () => {
     let filter;
-    if (user.rolDesc !== "BRICOMART_CENTRO") {
+    if (
+      user.rolDesc !== "BRICOMART_CENTRO" &&
+      user.rolDesc !== "BRICOMART_INPROECO_CENTRO"
+    ) {
       filter = columns
         .reduce((acc, { name }) => {
           if (name === "id") {
@@ -138,7 +141,7 @@ const Layout = ({
     }
     return `{"_and":[{"centro_id":{"_eq":"${user.centroId}"}}, {"_or":[${filter}]}]}`;
   };
-  //{_and: [{centro_id: {_eq: "691"}}, {_or: [{id: {_eq: 50}}, {nombre: {_ilike:"%aim%"}}]}]}
+
   const loadData = (excelExport = false) => {
     const queryString = getQueryString();
     console.log(JSON.parse(queryString));
@@ -150,7 +153,8 @@ const Layout = ({
       client
         .query({
           query:
-            user.rolDesc !== "BRICOMART_CENTRO"
+            user.rolDesc !== "BRICOMART_CENTRO" &&
+            user.rolDesc !== "BRICOMART_INPROECO_CENTRO"
               ? getVentasAllCentros
               : getVentasByCentroFilter,
           variables: {
@@ -159,14 +163,11 @@ const Layout = ({
           },
         })
         .then((res) => {
-          //const results = res.data.ventas_bricomart;
-          console.log(res.data.ventas_bricomart);
           const results = setEstadoName(res.data.ventas_bricomart);
           if (!excelExport) {
             setRows(results);
             setLastQuery(queryString);
           } else {
-            console.log("exporting...");
             setRowsExport(results, () => startExport(rowsExport));
             startExport();
           }

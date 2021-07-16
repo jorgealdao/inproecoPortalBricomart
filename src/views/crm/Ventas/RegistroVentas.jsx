@@ -20,7 +20,7 @@ const RegistroVentas = () => {
     const [ventas, setVentas] = useState(null)
 
     const fetchVentas = () => {
-        if(user.rolDesc === "BRICOMART_CENTRO") fetchVentasRoleCentro()
+        if(user.rolDesc === "BRICOMART_CENTRO" || user.rolDesc === "BRICOMART_INPROECO_CENTRO") fetchVentasRoleCentro()
         else fetchVentasRoleCorporativo()
     }
 
