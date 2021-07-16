@@ -27,6 +27,7 @@ import {
   updateParteB,
   updateDocumentsPath,
   updateVentaById,
+  updateEstadoVenta,
 } from "../../../components/graphql";
 
 // constants
@@ -319,8 +320,13 @@ const EditVentaModal = ({ editVentaModal, toggle, row }) => {
       }
       const isUpdated = await updateRutaVentaDocumento(row.id, pathParteB);
       if (isUpdated === 1) {
-        loadVentas();
-        toggle();
+        const estadoUpdated = await updateEstado(row.id, 3);
+        if (estadoUpdated === 1) {
+          loadVentas();
+          toggle();
+        }
+      } else {
+        console.log("estado no updated");
       }
     } else {
       loadVentas();
@@ -349,6 +355,20 @@ const EditVentaModal = ({ editVentaModal, toggle, row }) => {
         variables: {
           ventaId: ventaId,
           parteBPath: parteB,
+        },
+      })
+      .then((res) => {
+        return res.data.update_ventas_bricomart.affected_rows;
+      });
+  };
+
+  const updateEstado = (ventaId, estadoId) => {
+    return client
+      .mutate({
+        mutation: updateEstadoVenta,
+        variables: {
+          ventaId: ventaId,
+          estadoId: estadoId,
         },
       })
       .then((res) => {
@@ -503,7 +523,7 @@ const EditVentaModal = ({ editVentaModal, toggle, row }) => {
                   onChange={onChangeProvincia}
                   value={datosForm.provincia ? datosForm.provincia : ""}
                 >
-                  <option disabled selected defaultValue>
+                  <option selected defaultValue>
                     {" "}
                     {datosForm.provincia}
                   </option>
@@ -526,7 +546,7 @@ const EditVentaModal = ({ editVentaModal, toggle, row }) => {
                   onChange={onChangeMunicipio}
                   value={datosForm.localidad ? datosForm.localidad : ""}
                 >
-                  <option disabled selected defaultValue>
+                  <option selected defaultValue>
                     {" "}
                     {datosForm.localidad}{" "}
                   </option>
@@ -626,7 +646,7 @@ const EditVentaModal = ({ editVentaModal, toggle, row }) => {
                   onChange={onChangeCentro}
                   value={datosForm.centro_id ? datosForm.centro_id : ""}
                 >
-                  <option disabled selected value={datosForm.centro_id}>
+                  <option selected value={datosForm.centro_id}>
                     {datosForm.centro}
                   </option>
                   {centros &&

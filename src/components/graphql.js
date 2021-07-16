@@ -242,6 +242,17 @@ export const updateParteB = gql`
   }
 `;
 
+export const updateEstadoVenta = gql`
+  mutation update_ventas_bricomart($ventaId: Int!, $estadoId: Int!) {
+    update_ventas_bricomart(
+      where: { id: { _eq: $ventaId } }
+      _set: { estado_id: $estadoId }
+    ) {
+      affected_rows
+    }
+  }
+`;
+
 export const deleteVentaById = gql`
   mutation delete_ventas_bricomart($ventaId: Int!) {
     delete_ventas_bricomart(where: { id: { _eq: $ventaId } }) {

@@ -21,7 +21,7 @@ const RegistroVentas = () => {
     const [lastQuery, setLastQuery] = useState();
 
     const fetchVentas = () => {
-        if(user.rolDesc === "BRICOMART_CENTRO") fetchVentasRoleCentro()
+        if(user.rolDesc === "BRICOMART_CENTRO" || user.rolDesc === "BRICOMART_INPROECO_CENTRO") fetchVentasRoleCentro()
         else fetchVentasRoleCorporativo()
     }
 
@@ -36,7 +36,7 @@ const RegistroVentas = () => {
                 }
             })
             .then(res => {
-                console.log(res)
+                //console.log(res)
                 setVentas(setEstadoName(res.data.ventas_bricomart))
             })
     }, [client, getVentasByCentro])

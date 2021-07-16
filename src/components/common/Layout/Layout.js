@@ -66,7 +66,6 @@ const Layout = ({
   setLastQuery,
 }) => {
   const dispatch = useContext(GlobalDispatchContext);
-  const [isDeleted, setIsDeleted] = useState(false);
   const getRowId = (row) => row.id;
   const filterRowMessages = {
     filterPlaceholder: "Filtrar...",
@@ -111,7 +110,10 @@ const Layout = ({
 
   const getQueryString = () => {
     let filter;
-    if (user.rolDesc !== "BRICOMART_CENTRO") {
+    if (
+      user.rolDesc !== "BRICOMART_CENTRO" &&
+      user.rolDesc !== "BRICOMART_INPROECO_CENTRO"
+    ) {
       filter = columns
         .reduce((acc, { name }) => {
           if (name === "id") {
@@ -154,7 +156,7 @@ const Layout = ({
 
   const loadData = (excelExport = false) => {
     const queryString = getQueryString();
-    console.log(JSON.parse(queryString));
+    //console.log(JSON.parse(queryString));
     let limit = excelExport ? 10000 : 500;
     if (
       (queryString && excelExport) ||
@@ -163,7 +165,8 @@ const Layout = ({
       client
         .query({
           query:
-            user.rolDesc !== "BRICOMART_CENTRO"
+            user.rolDesc !== "BRICOMART_CENTRO" &&
+            user.rolDesc !== "BRICOMART_INPROECO_CENTRO"
               ? getVentasAllCentros
               : getVentasByCentroFilter,
           fetchPolicy: "no-cache",
@@ -173,13 +176,11 @@ const Layout = ({
           },
         })
         .then((res) => {
-          console.log(res.data.ventas_bricomart);
           const results = setEstadoName(res.data.ventas_bricomart);
           if (!excelExport) {
             setRows(results);
             setLastQuery(queryString);
           } else {
-            console.log("exporting...");
             setRowsExport(results, () => startExport(rowsExport));
             startExport();
           }
@@ -251,10 +252,7 @@ const Layout = ({
                           />
                           <TableRowDetail
                             toggleCellComponent={(props) => (
-                              <RowVentaActions
-                                {...props}
-                                setIsDeleted={setIsDeleted}
-                              />
+                              <RowVentaActions {...props} />
                             )}
                           />
                           {/* INICIO RECOGER LAS LÍNEAS FILTRADAS */}

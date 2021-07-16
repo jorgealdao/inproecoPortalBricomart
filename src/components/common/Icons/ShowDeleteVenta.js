@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import DeleteVentaModal from "../Modals/DeleteVentaModal";
 
-const ShowDeleteVenta = ({ row, setIsDeleted }) => {
+const ShowDeleteVenta = ({ row }) => {
   const [deleteVentaModal, setDeleteVentaModal] = useState(false);
 
- const toggleDeleteVentaModal = () => {
-     /* console.log(row.id); */
+  const toggleDeleteVentaModal = () => {
+    /* console.log(row.id); */
     setDeleteVentaModal(!deleteVentaModal);
   };
 
@@ -17,20 +17,19 @@ const ShowDeleteVenta = ({ row, setIsDeleted }) => {
           cursor: "pointer",
           verticalAlign: "middle",
           textAlign: "center",
-          marginLeft: "5px"
+          marginLeft: "5px",
         }}
-         onClick={toggleDeleteVentaModal}
+        onClick={toggleDeleteVentaModal}
       />
-     {deleteVentaModal ? (
+      {deleteVentaModal ? (
         <DeleteVentaModal
           deleteVentaModal={deleteVentaModal}
           toggle={toggleDeleteVentaModal}
           row={row.id}
-          setIsDeleted = {setIsDeleted}
         />
       ) : (
         <></>
-      )} 
+      )}
     </>
   );
 };

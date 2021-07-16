@@ -3,8 +3,11 @@ import { Col, Row, Form, FormGroup, Label, Input,  Button } from "reactstrap";
 import Dropzone from "react-dropzone";
 import moment from "moment";
 
+// context
+import { GlobalStateContext } from "../../../context/GlobalContext";
+
 //graphql
-import { client, getProvincias, getMunicipiosByProvincia, getCentros, insertVentaBricomart, getZonaByCentro, getZonaName, getDocumentPath, updateDocumentsPath } from '../../../components/graphql';
+import { client, getProvincias, getMunicipiosByProvincia, getCentros, insertVentaBricomart, getCentroName, getZonaByCentro, getZonaName, getDocumentPath, updateDocumentsPath } from '../../../components/graphql';
 
 // constants
 import { API_INPRONET } from '../../../components/constants';
@@ -14,6 +17,9 @@ import VentaSuccessModal from '../../../components/common/Modals/VentaSuccessMod
 import VentaErrorDocumentoModal from '../../../components/common/Modals/VentaErrorDocumentoModal';
 
 const FormularioNuevaVenta = ({history}) => {
+
+    const { user } = useContext(GlobalStateContext);  
+    const { centroId } = user;
 
     const [provincias, setProvincias] = useState();
     const [localidades, setLocalidades] = useState();
@@ -304,6 +310,19 @@ const FormularioNuevaVenta = ({history}) => {
         setDatosForm({...datosForm, localidad: e.target.options[e.target.selectedIndex].text})
     };
 
+    const fetchCentroName = () => {
+        client
+            .query({
+                query: getCentroName,
+                variables: {
+                    centroId
+                }
+            })
+            .then(res => {
+                setDatosForm({...datosForm, centro_id: centroId, centro: res.data.getCentrosProductoresView[0].nombre})
+            })
+    }
+
     const fetchCentros = () => {
         client
             .query({
@@ -344,10 +363,6 @@ const FormularioNuevaVenta = ({history}) => {
         console.log(e.target.value, e.target.options[e.target.selectedIndex].text)
         setDatosForm({...datosForm, centro_id: e.target.value, centro: e.target.options[e.target.selectedIndex].text})
         setAlmacen(true)
-        /*  if (almacen == false) {
-           setAlmacen(true)
-           console.log(almacen);
-        } */
         //fetchZona(e.target.value)
     }
 
@@ -366,7 +381,7 @@ const FormularioNuevaVenta = ({history}) => {
 
     const onSubmitForm = async (e) => {
         e.preventDefault();
-        console.log(JSON.parse(setMutationString()))
+        //console.log(JSON.parse(setMutationString()))
         let ventaId;
         const parteAId = await saveDocuments(newFiles, fileNames, "Bricomart Parte A")
         if(!parteAId) {
@@ -431,7 +446,11 @@ const FormularioNuevaVenta = ({history}) => {
 
      useEffect(() => {
         fetchProvincias()
-        fetchCentros()       
+        fetchCentros()    
+        if(centroId) {
+            fetchCentroName()
+            setAlmacen(true)
+        }
     }, [])
 
     return (
@@ -663,11 +682,14 @@ const FormularioNuevaVenta = ({history}) => {
                                         <Input
                                         type="select"
                                         onChange={onChangeCentro}
-                                        >
-                                            <option disabled selected defaultValue> -- Seleccionar -- </option>
+                                        >   
+                                            {!centroId && (<option disabled selected value> -- Seleccionar -- </option>)}
                                             {centros && centros.map(centro=>{ 
+                                                if(centro.ID == centroId) {
+                                                    return (<option key={centro.ID} value={centro.ID} selected>{centro.DENOMINACION}</option>)
+                                                } 
                                                 return (
-                                                <option key={centro.ID} value={centro.ID} >{centro.DENOMINACION}</option>
+                                                    <option key={centro.ID} value={centro.ID} >{centro.DENOMINACION}</option>
                                                 )
                                             })}
                                         </Input>

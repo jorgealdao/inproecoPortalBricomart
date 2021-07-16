@@ -1,5 +1,4 @@
 import React, { useContext } from "react";
-import { withRouter } from "react-router-dom";
 import {
   Button,
   Modal,
@@ -15,13 +14,7 @@ import { GlobalStateContext } from "../../../context/GlobalContext";
 //graphql
 import { client, deleteVentaById } from "../../../components/graphql";
 
-const DeleteVentaModal = ({
-  deleteVentaModal,
-  toggle,
-  row,
-  history,
-  setIsDeleted,
-}) => {
+const DeleteVentaModal = ({ deleteVentaModal, toggle, row, history }) => {
   const { loadVentas } = useContext(GlobalStateContext);
   const deleteVenta = () => {
     let ventaID = row;
@@ -35,10 +28,11 @@ const DeleteVentaModal = ({
       })
       .then((res) => {
         console.log(res);
-        setIsDeleted(true);
+        if (res.data.delete_ventas_bricomart.affected_rows === 1) {
+          toggle();
+          loadVentas();
+        }
       });
-    toggle();
-    loadVentas();
   };
 
   return (
@@ -61,4 +55,4 @@ const DeleteVentaModal = ({
   );
 };
 
-export default withRouter(DeleteVentaModal);
+export default DeleteVentaModal;

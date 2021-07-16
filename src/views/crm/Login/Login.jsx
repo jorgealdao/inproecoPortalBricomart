@@ -39,14 +39,19 @@ const Login = (props) => {
           .then(response => response.text())
           .then(user => {
             user = JSON.parse(user)
-            if(user != "ERRORUSER_PASS" && (user.rolDesc == "BRICOMART_CENTRO" || user.rolDesc == "BRICOMART_CORPORATIVO" || user.rolDesc == "BRICOMART_INPROECO")) {
+            if(user != "ERRORUSER_PASS" && 
+              (user.rolDesc === "BRICOMART_CENTRO" ||
+              user.rolDesc === "BRICOMART_CORPORATIVO" ||
+              user.rolDesc === "BRICOMART_INPROECO" ||
+              user.rolDesc === "BRICOMART_INPROECO_CENTRO")
+            ) {
               dispatch(
                 { type: "SET_ALLOWED", payload: { isAllowed: true } }); 
               dispatch({
                 type: "SET_LOGIN",
                 payload: { token: user.mail, user: user },
               });
-              if(user.rolDesc == "BRICOMART_INPROECO") props.history.push("/crm/nueva-venta");
+              if(user.rolDesc == "BRICOMART_INPROECO" || user.rolDesc === "BRICOMART_INPROECO_CENTRO") props.history.push("/crm/nueva-venta");
               else props.history.push("/crm/registro-ventas");           
             } else {
               props.history.push("/login");
