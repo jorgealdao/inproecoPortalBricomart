@@ -13,6 +13,8 @@ import {
   FilteringState,
   IntegratedFiltering,
   RowDetailState,
+  PagingState,
+  IntegratedPaging,
 } from "@devexpress/dx-react-grid";
 import { SearchPanel } from "@devexpress/dx-react-grid-bootstrap4";
 import {
@@ -24,6 +26,7 @@ import {
   Toolbar,
   ExportPanel,
   TableRowDetail,
+  PagingPanel,
 } from "@devexpress/dx-react-grid-bootstrap4";
 import {
   Template,
@@ -218,6 +221,11 @@ const Layout = ({
                         <p>Cargando...</p>
                       ) : (
                         <Grid rows={rows} columns={columns} getRowId={getRowId}>
+                          <PagingState
+                            defaultCurrentPage={0}
+                            pageSize={10}
+                          />
+                          <IntegratedPaging />
                           <SearchState onValueChange={setSearchValue} />
                           <SortingState />
                           <RowDetailState />
@@ -266,6 +274,7 @@ const Layout = ({
                             </TemplateConnector>
                           </Template>
                           {/* FIN RECOGER LAS LÍNEAS FILTRADAS */}
+                          <PagingPanel />
                         </Grid>
                       )}
                     </div>

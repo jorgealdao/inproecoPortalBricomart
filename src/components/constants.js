@@ -9,14 +9,18 @@ export const API_INPRONET = "http://34.243.112.211/inproecoweb2_0";
 export const REGISTRO_VENTAS_COLUMNS = [
   { name: "id", title: "ID" },
   { name: "centro", title: "Centro" },
+  { name: "fecha_venta", title: "Fecha compra" },
   { name: "nif", title: "Nif" },
   { name: "nombre", title: "Nombre" },
+  { name: "apellido1", title: "Apellido 1" },
+  { name: "apellido2", title: "Apellido 2" },
+  { name: "nombre_via", title: "Calle" },
   { name: "localidad", title: "Localidad" },
   { name: "marca", title: "Marca" },
   { name: "modelo", title: "Modelo" },
+  { name: "numero_serie", title: "Nº de Serie" },
   { name: "referencia", title: "Referencia" },
   { name: "estado", title: "Estado" },
-  { name: "fecha_venta", title: "Fecha compra" },
 ];
 
 export const REGISTRO_VENTAS_EXPORT_COLUMNS = [
