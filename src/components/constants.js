@@ -1,8 +1,8 @@
 //PROD
-export const API_INPRONET = "https://api.inpronet.es/inproecoweb2_0";
+//export const API_INPRONET = "https://api.inpronet.es/inproecoweb2_0";
 
 // QA
-//export const API_INPRONET = "http://34.243.112.211/inproecoweb2_0";
+export const API_INPRONET = "http://34.243.112.211/inproecoweb2_0";
 
 // CONSTANTES PARA BRICOMART
 
@@ -17,6 +17,33 @@ export const REGISTRO_VENTAS_COLUMNS = [
   { name: "referencia", title: "Referencia" },
   { name: "estado", title: "Estado" },
   { name: "fecha_venta", title: "Fecha compra" },
+];
+
+export const REGISTRO_VENTAS_EXPORT_COLUMNS = [
+  { name: "id", title: "ID" },
+  { name: "centro", title: "Centro" },
+  { name: "nif", title: "Nif" },
+  { name: "nombre", title: "Nombre" },
+  { name: "apellido1", title: "Apellido1" },
+  { name: "apellido2", title: "Apellido2" },
+  { name: "razon_social", title: "Razon Social" },
+  { name: "tipo_via", title: "Tipo Via" },
+  { name: "nombre_via", title: "Nombre Via" },
+  { name: "numero", title: "Numero" },
+  { name: "piso", title: "Piso" },
+  { name: "puerta", title: "Puerta" },
+  { name: "codigo_postal", title: "Codigo Postal" },
+  { name: "localidad", title: "Localidad" },
+  { name: "provincia", title: "Provincia" },
+  { name: "marca", title: "Marca" },
+  { name: "modelo", title: "Modelo" },
+  { name: "referencia", title: "Referencia" },
+  { name: "numero_serie", title: "Numero Serie" },
+  { name: "cantidad", title: "Cantidad" },
+  { name: "tipo_gas", title: "Tipo Gas" },
+  { name: "estado", title: "Estado" },
+  { name: "fecha_venta", title: "Fecha compra" },
+  { name: "centro", title: "Almacén" },
 ];
 
 // FIN CONSTANTES BRICOMART

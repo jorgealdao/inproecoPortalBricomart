@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useContext } from 'react';
 import { FilteringState, IntegratedFiltering } from "@devexpress/dx-react-grid";
 
 //constants
-import { REGISTRO_VENTAS_COLUMNS } from '../../../components/constants';
+import { REGISTRO_VENTAS_COLUMNS, REGISTRO_VENTAS_EXPORT_COLUMNS } from '../../../components/constants';
 
 //graphql
 import { client, getVentasByCentro, getVentasAllCentros } from '../../../components/graphql';
@@ -86,6 +86,7 @@ const RegistroVentas = () => {
             rows={ventas}
             setRows={setVentas}
             columns={columns}
+            columnsToExport={REGISTRO_VENTAS_EXPORT_COLUMNS}
             fetchVentas={fetchVentas}
             setEstadoName={setEstadoName}
             user={user}

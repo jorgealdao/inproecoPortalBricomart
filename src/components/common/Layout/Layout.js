@@ -58,6 +58,7 @@ const Layout = ({
   rows,
   setRows,
   columns,
+  columnsToExport,
   children,
   fetchVentas,
   setEstadoName,
@@ -247,7 +248,7 @@ const Layout = ({
                           <GridExporter
                             ref={exporterRef}
                             rows={rowsExport}
-                            columns={columns}
+                            columns={columnsToExport}
                             onSave={onSave}
                           />
                           <TableRowDetail
