@@ -93,8 +93,8 @@ const RegistroVentas = () => {
             lastQuery={lastQuery}
             setLastQuery={setLastQuery}
         >
-            <FilteringState defaultFilters={[]} />
-            <IntegratedFiltering />
+            {/* <FilteringState defaultFilters={[]} />
+            <IntegratedFiltering /> */}
         </Layout>
     )
 }

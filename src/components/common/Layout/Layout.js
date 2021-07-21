@@ -36,6 +36,7 @@ import {
 import "@devexpress/dx-react-grid-bootstrap4/dist/dx-react-grid-bootstrap4.css";
 import { GridExporter } from "@devexpress/dx-react-grid-export";
 import saveAs from "file-saver";
+import MultiSelect from "@khanacademy/react-multi-select";
 
 // COMPONENTS
 import ExportExcel from "./../Export/ExportExcel";
@@ -54,6 +55,7 @@ import {
   client,
   getVentasAllCentros,
   getVentasByCentroFilter,
+  getCentros,
 } from "../../graphql";
 
 const Layout = ({
@@ -82,12 +84,21 @@ const Layout = ({
   ]);
 
   // FILTRO COLUMNA
-  const [filteringStateColumnExtensions] = useState([
-    { columnName: "fecha_venta", filteringEnabled: false },
+  const columnFilterMultiPredicate = (value, filter, row) => {
+    if (!filter.value.length) return true;
+    for (let i = 0; i < filter.value.length; i++) {
+      if (value === filter.value[i]) return true;
+    }
+
+    return IntegratedFiltering.defaultPredicate(value, filter, row);
+  };
+
+  const [filteringColumnExtensions, setFilteringColumnExtensions] = useState([
+    { columnName: "centro", predicate: columnFilterMultiPredicate },
+    { columnName: "estado", predicate: columnFilterMultiPredicate },
   ]);
 
   // EXPORT EXCEL
-
   const onSave = (workbook) => {
     workbook.xlsx.writeBuffer().then((buffer) => {
       saveAs(
@@ -160,7 +171,7 @@ const Layout = ({
 
   const loadData = (excelExport = false) => {
     const queryString = getQueryString();
-    //console.log(JSON.parse(queryString));
+    console.log(JSON.parse(queryString));
     let limit = excelExport ? 10000 : 500;
     if (
       (queryString && excelExport) ||
@@ -193,6 +204,27 @@ const Layout = ({
     }
   };
 
+  const [centros, setCentros] = useState([]);
+  const fetchCentros = useCallback(async () => {
+    let results = [];
+    await client
+      .query({
+        query: getCentros,
+        fetchPolicy: "no-cache",
+      })
+      .then((res) => {
+        console.log(res.data.getCentroProductor);
+        for (let centro of res.data.getCentroProductor) {
+          results.push(centro.DENOMINACION);
+        }
+      });
+    setCentros(results);
+  }, [client, getCentros]);
+
+  useEffect(() => {
+    fetchCentros();
+  }, []);
+
   useEffect(() => {
     dispatch({ type: "SET_LOAD_VENTAS", payload: { loadVentas: loadData } });
     if (searchValue !== "") {
@@ -221,16 +253,17 @@ const Layout = ({
                         <p>Cargando...</p>
                       ) : (
                         <Grid rows={rows} columns={columns} getRowId={getRowId}>
-                          <PagingState
-                            defaultCurrentPage={0}
-                            pageSize={10}
-                          />
+                          <PagingState defaultCurrentPage={0} pageSize={10} />
                           <IntegratedPaging />
                           <SearchState onValueChange={setSearchValue} />
                           <SortingState />
+                          <FilteringState defaultFilters={[]} />
                           <RowDetailState />
                           <IntegratedSorting
                             columnExtensions={integratedSortingColumnExtensions}
+                          />
+                          <IntegratedFiltering
+                            columnExtensions={filteringColumnExtensions}
                           />
                           {children}
                           <VirtualTable />
@@ -240,12 +273,12 @@ const Layout = ({
                             hiddenColumnNames={hiddenColumnsNames}
                           />
                           */}
-                          {/* <TableFilterRow
+                          <TableFilterRow
                             messages={filterRowMessages}
                             cellComponent={(props) => (
-                              <FilterCell {...props} {...dataFilters} />
+                              <FilterCell {...props} centros={centros} />
                             )}
-                          /> */}
+                          />
                           <SearchPanel
                             messages={{ searchPlaceholder: "Buscar..." }}
                           />
