@@ -56,6 +56,7 @@ import {
   getVentasAllCentros,
   getVentasByCentroFilter,
   getCentros,
+  getVentasByCentro
 } from "../../graphql";
 
 const Layout = ({
@@ -76,8 +77,9 @@ const Layout = ({
   const filterRowMessages = {
     filterPlaceholder: "Filtrar...",
   };
-  const [filterRows, setFilterRows] = useState(null);
-
+  const [filterRows, setFilterRows] = useState(0);
+  const [count, setCount] = useState(null);
+  const [pageSizes] = React.useState([5, 10, 15]);
   // SORTING DE FECHAS
   const [integratedSortingColumnExtensions] = useState([
     { columnName: "fecha_venta", compare: compareDates },
@@ -89,6 +91,7 @@ const Layout = ({
     for (let i = 0; i < filter.value.length; i++) {
       if (value === filter.value[i]) return true;
     }
+
 
     return IntegratedFiltering.defaultPredicate(value, filter, row);
   };
@@ -181,7 +184,7 @@ const Layout = ({
         .query({
           query:
             user.rolDesc !== "BRICOMART_CENTRO" &&
-            user.rolDesc !== "BRICOMART_INPROECO_CENTRO"
+              user.rolDesc !== "BRICOMART_INPROECO_CENTRO"
               ? getVentasAllCentros
               : getVentasByCentroFilter,
           fetchPolicy: "no-cache",
@@ -204,6 +207,53 @@ const Layout = ({
     }
   };
 
+  const dataCountFilter = () => {
+    const queryString = getQueryString();
+    client
+      .query({
+        query:
+          user.rolDesc !== "BRICOMART_CENTRO" &&
+            user.rolDesc !== "BRICOMART_INPROECO_CENTRO"
+            ? getVentasAllCentros
+            : getVentasByCentro,
+        fetchPolicy: "no-cache",
+        variables: {
+
+          fields: JSON.parse(queryString),
+        },
+      })
+      .then((res) => {
+        const results = res.data.ventas_bricomart.length;
+        setCount(results)
+
+      });
+
+  }
+
+  const dataCount = () => {
+    client
+      .query({
+        query:
+          user.rolDesc !== "BRICOMART_CENTRO" &&
+            user.rolDesc !== "BRICOMART_INPROECO_CENTRO"
+            ? getVentasAllCentros
+            : getVentasByCentro,
+        fetchPolicy: "no-cache",
+        variables: {
+
+          fields: lastQuery,
+        },
+      })
+      .then((res) => {
+        const results = res.data.ventas_bricomart.length;
+        setCount(results)
+
+      });
+
+  }
+
+
+
   const [centros, setCentros] = useState([]);
   const fetchCentros = useCallback(async () => {
     let results = [];
@@ -222,8 +272,14 @@ const Layout = ({
   }, [client, getCentros]);
 
   useEffect(() => {
+    dataCount()
     fetchCentros();
+
   }, []);
+
+  useEffect(() => {
+    dataCountFilter()
+  }, [getQueryString])
 
   useEffect(() => {
     dispatch({ type: "SET_LOAD_VENTAS", payload: { loadVentas: loadData } });
@@ -301,7 +357,9 @@ const Layout = ({
                           <Template name="root">
                             <TemplateConnector>
                               {({ rows: filteredRows }) => {
-                                setFilterRows(filteredRows);
+                                console.log(filteredRows);
+
+                                setFilterRows(filteredRows.length);
                                 return <TemplatePlaceholder />;
                               }}
                             </TemplateConnector>
@@ -310,8 +368,10 @@ const Layout = ({
                           <PagingPanel />
                         </Grid>
                       )}
+
                     </div>
                   </div>
+                  <p>Mostrando {filterRows} de {count} resultados</p>
                 </div>
               </section>
             </div>
