@@ -115,7 +115,7 @@ const EditVentaModal = ({ editVentaModal, toggle, row }) => {
   };
 
   // COGER VALORES INPUTS
-  const onChangeNif = (e) => {
+  /* const onChangeNif = (e) => {
     setDatosForm({ ...datosForm, nif: e.target.value });
     let cif = e.target.value;
     let validChars = "TRWAGMYFPDXBNJZSQVHLCKET";
@@ -141,7 +141,21 @@ const EditVentaModal = ({ editVentaModal, toggle, row }) => {
     } else {
       setNifInvalido(true);
     }
-  };
+  }; */
+
+  const onChangeNif = (e) => {
+        setDatosForm({ ...datosForm, nif: e.target.value });
+        let cif = e.target.value 
+
+        if (cif.length == 9 || cif == '') {
+            setNifInvalido(false)
+            setDatosForm({...datosForm, nif: e.target.value})
+            return true;
+            
+        } else {
+            setNifInvalido(true)
+        }
+    }
 
   const onChangeFullName = (e) => {
     setDatosForm({ ...datosForm, nombre: e.target.value });
@@ -401,6 +415,7 @@ const EditVentaModal = ({ editVentaModal, toggle, row }) => {
                   type="text"
                   onChange={onChangeNif}
                   value={datosForm.nif ? datosForm.nif : ""}
+                  maxLength="9"
                 />
                 {nifInvalido ? (
                   <div>Introduzca un número de identificación válido</div>
