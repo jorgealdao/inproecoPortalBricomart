@@ -116,7 +116,7 @@ const FormularioNuevaVenta = ({history}) => {
     };
 
     // COGER VALORES INPUTS
-    const onChangeNif = (e) => {
+    /* const onChangeNif = (e) => {
         let cif = e.target.value   
         let validChars = 'TRWAGMYFPDXBNJZSQVHLCKET';
         let nifRexp = /^[0-9]{8}[TRWAGMYFPDXBNJZSQVHLCKET]{1}$/i;
@@ -143,7 +143,7 @@ const FormularioNuevaVenta = ({history}) => {
             
         }
 
-    }
+    } */
     /* const onChangeNif = (e) => {
         let cif = e.target.value   
         let DNI_REGEX = /^(\d{8})([A-Z])$/;
@@ -204,6 +204,19 @@ const FormularioNuevaVenta = ({history}) => {
             return false
         }
     } */
+
+    const onChangeNif = (e) => {
+        let cif = e.target.value 
+
+        if (cif.length == 9 || cif == '') {
+            setNifInvalido(false)
+            setDatosForm({...datosForm, nif: e.target.value})
+            return true;
+            
+        } else {
+            setNifInvalido(true)
+        }
+    }
 
     const onChangeFullName = (e) => {
         setDatosForm({...datosForm, nombre: e.target.value})
@@ -467,6 +480,7 @@ const FormularioNuevaVenta = ({history}) => {
                                         <Input
                                         type="text"
                                         onChange={onChangeNif}
+                                        maxLength="9"
                                         />
                                         {nifInvalido ? (
                                                     <div>Introduzca un número de identificación válido</div>
