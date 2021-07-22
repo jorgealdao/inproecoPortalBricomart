@@ -12,22 +12,44 @@ import {
 import { API_INPRONET } from "../../constants";
 
 const ShowDocumentsModal = ({ showDocumentsModal, toggle, retirada }) => {
+  const [parteA, setParteA] = useState(false);
+  const [parteB, setParteB] = useState(false);
+
+  const fetchDocument = async (url) => {
+    const fetchDocument = await fetch(
+      `${API_INPRONET}/download.php?filename=${url}`
+    );
+    const resfetchDocument = await fetchDocument.blob();
+    var reader = new FileReader();
+    reader.onload = (e) => {
+      console.log(e.target.result);
+      if (!url.includes("parteB")) setParteA(e.target.result);
+      else setParteB(e.target.result);
+    };
+    reader.readAsDataURL(resfetchDocument);
+  };
+
   const ShowDocuments = () => {
-    console.log(retirada.parteA_ruta);
     return (
       <>
-        {showDocument(retirada.parteA_ruta)}
-        {retirada.parteB_ruta && showDocument(retirada.parteB_ruta)}
+        {showDocument(retirada.parteA_ruta, "parteA")}
+        {retirada.parteB_ruta && showDocument(retirada.parteB_ruta, "parteB")}
       </>
     );
   };
 
-  const showDocument = (path) => {
-    console.log(path);
+  const showDocument = (path, type) => {
+    if (!parteA) fetchDocument(path);
+    if (!parteB) fetchDocument(path);
     return (
-      <li key={retirada.path}>
+      <li key={path}>
         <span>
-          <a href={`${API_INPRONET}/${path}`} style={{ padding: "20px" }}>
+          <a
+            target="_blank"
+            download="documento"
+            href={type === "parteA" ? [parteA] : [parteB]}
+            title="Descargar"
+          >
             {path.includes("parteA") ? "Parte A" : "Parte B"}
           </a>
         </span>
