@@ -80,6 +80,7 @@ const Layout = ({
   const [filterRows, setFilterRows] = useState(0);
   const [count, setCount] = useState(null);
   const [pageSizes] = React.useState([5, 10, 15]);
+  const [filtersApplied, setFiltersApplied] = useState([])
   // SORTING DE FECHAS
   const [integratedSortingColumnExtensions] = useState([
     { columnName: "fecha_venta", compare: compareDates },
@@ -255,6 +256,7 @@ const Layout = ({
 
 
   const [centros, setCentros] = useState([]);
+  const [estados, setEstados] = useState([]);
   const fetchCentros = useCallback(async () => {
     let results = [];
     await client
@@ -271,10 +273,29 @@ const Layout = ({
     setCentros(results);
   }, [client, getCentros]);
 
+  const fetchEstados = useCallback(async () => {
+    let results = [];
+    await client
+      .query({
+        query: getVentasAllCentros,
+        fetchPolicy: "no-cache",
+      })
+      .then((res) => {
+        console.log(res);
+        for (let estado of res.data.ventas_bricomart) {
+          if (estado.estado_venta != null) {
+            results.push(estado.estado_venta.nombre);
+          }
+          results = [...new Set(results)];
+        }
+      });
+    setEstados(results);
+  }, [client, getVentasAllCentros]);
+
   useEffect(() => {
     dataCount()
     fetchCentros();
-
+    fetchEstados()
   }, []);
 
   useEffect(() => {
@@ -313,8 +334,15 @@ const Layout = ({
                           <IntegratedPaging />
                           <SearchState onValueChange={setSearchValue} />
                           <SortingState />
-                          <FilteringState defaultFilters={[]} />
+                          <FilteringState filters={filtersApplied} onFiltersChange={(filter) => setFiltersApplied(filter)}/>
+                                                {/* <EditingState
+                                                    onCommitChanges={commitChanges}
+                                                /> */}
+                                                <RowDetailState
+                                                   // expandedRowIds={expandedRows}
+                                                />
                           <RowDetailState />
+                          <SortingState/>
                           <IntegratedSorting
                             columnExtensions={integratedSortingColumnExtensions}
                           />
@@ -332,7 +360,7 @@ const Layout = ({
                           <TableFilterRow
                             messages={filterRowMessages}
                             cellComponent={(props) => (
-                              <FilterCell {...props} centros={centros} />
+                              <FilterCell {...props} centros={centros} estados={estados} />
                             )}
                           />
                           <SearchPanel
