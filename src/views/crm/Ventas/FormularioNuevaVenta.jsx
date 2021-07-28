@@ -7,7 +7,7 @@ import moment from "moment";
 import { GlobalStateContext } from "../../../context/GlobalContext";
 
 //graphql
-import { client, getProvincias, getMunicipiosByProvincia, getCentros, insertVentaBricomart, getCentroName, getZonaByCentro, getZonaName, getDocumentPath, updateDocumentsPath } from '../../../components/graphql';
+import { client, getLastId, getProvincias, getMunicipiosByProvincia, getCentros, insertVentaBricomart, getCentroName, getZonaByCentro, getZonaName, getDocumentPath, updateDocumentsPath } from '../../../components/graphql';
 
 // constants
 import { API_INPRONET } from '../../../components/constants';
@@ -389,8 +389,22 @@ const FormularioNuevaVenta = ({history}) => {
     }
 
     useEffect(() => {
+        fetchLastId()
         !existsParteB() ? setDatosForm({...datosForm, estado_id: 2}) : setDatosForm({...datosForm, estado_id: 3})
     }, [fileNamesB])
+
+    const fetchLastId = () => {
+        return client
+                .query({
+                    query: getLastId,
+                    fetchPolicy: "no-cache"
+                })
+                .then(res => {
+                    //console.log(res.data.ventas_bricomart[0].id)
+                    setDatosForm({...datosForm, id: res.data.ventas_bricomart[0].id + 1})
+                    //return res.data.ventas_bricomart[0].id
+                })
+    }
 
     const onSubmitForm = async (e) => {
         e.preventDefault();

@@ -205,6 +205,14 @@ export const getDocumentosById = gql`
   }
 `;
 
+export const getLastId = gql`
+  query getId {
+    ventas_bricomart(order_by: { id: desc }, limit: 1) {
+      id
+    }
+  }
+`;
+
 // mutations
 export const insertVentaBricomart = gql`
   mutation insert_ventas_bricomart($fields: [ventas_bricomart_insert_input!]!) {
