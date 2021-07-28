@@ -10380,7 +10380,7 @@ body .rdg-selected .drag-handle {
   .dt-disp .col-md-4.col-xs-12 {
     width: auto;
     display: inline-block;
-    float: right;
+    /* float: right; */
     flex: none;
     padding: 0px; }
   .dt-disp .col-md-4.col-xs-12.text-right {
@@ -10480,6 +10480,9 @@ table.fixheight {
 .asociar-servicio-button {
   float: right;
   margin-top: 2em; }
+
+.input-group {
+  display: none; }
 
 /* .ant-picker-dropdown-range,
 .ant-picker-dropdown,

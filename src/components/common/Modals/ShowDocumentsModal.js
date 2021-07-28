@@ -27,7 +27,7 @@ const ShowDocumentsModal = ({ showDocumentsModal, toggle, retirada }) => {
     return (
       <li key={retirada.path}>
         <span>
-          <a href={`${API_INPRONET}/${path}`} style={{ padding: "20px" }}>
+          <a  target="_blank" href={`${API_INPRONET}/${path}`} style={{ padding: "20px" }}>
             {path.includes("parteA") ? "Parte A" : "Parte B"}
           </a>
         </span>

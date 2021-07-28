@@ -41,7 +41,6 @@ import VentaErrorDocumentoModal from "../../../components/common/Modals/VentaErr
 
 const EditVentaModal = ({ editVentaModal, toggle, row }) => {
   const { loadVentas } = useContext(GlobalStateContext);
-
   const [provincias, setProvincias] = useState();
   const [localidades, setLocalidades] = useState();
   const [centros, setCentros] = useState();
@@ -395,7 +394,7 @@ const EditVentaModal = ({ editVentaModal, toggle, row }) => {
       setDatosForm({
         ...datosForm,
         fecha_venta: row.fecha_venta
-          ? row.fecha_venta.split("/").reverse().join("-")
+          ? row.fecha_venta.split("-").reverse().join("/")
           : null,
       });
     fetchProvincias();
