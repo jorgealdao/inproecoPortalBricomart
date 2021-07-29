@@ -11,8 +11,10 @@ import useFilters from "../../../hooks/useFilters";
 
 // GRAPHQL
 import { client, getCentros } from "../../../components/graphql";
+
 let clickedOptionCentro = [];
 let clickedOptionEstado = [];
+
 const UnitsFilterCell = ({ onFilter, column, centros, estados }) => {
  
   const { value, setValue } = useFilters();
@@ -92,6 +94,7 @@ const UnitsFilterCell = ({ onFilter, column, centros, estados }) => {
                        
                         // Callback a filtrado
                         onFilter(selected ? { value: selected } : null)
+                        
                     }}
                 />
     </th>
