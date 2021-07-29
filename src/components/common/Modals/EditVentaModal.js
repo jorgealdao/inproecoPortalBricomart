@@ -320,7 +320,10 @@ const EditVentaModal = ({ editVentaModal, toggle, row }) => {
           console.log("error");
         }
       });
-
+    
+    /* REVISAR ESTE FIX QUE SOLUCIONA QUE NO SE SETEA EL ESTADO PARA PARTE A*/
+    if(updatedSale) await updateEstado(row.id, 2);
+    
     if (updatedSale && existsParteB()) {
       let pathParteB;
       let parteBId = await saveDocuments(
