@@ -439,12 +439,12 @@ const Layout = ({
                             hiddenColumnNames={hiddenColumnsNames}
                           />
                           */}
-                          <TableFilterRow
+                         {/*  <TableFilterRow
                             messages={filterRowMessages}
                             cellComponent={(props) => (
                               <FilterCell {...props} centros={centros} estados={estados} />
                             )}
-                          />
+                          /> */}
                           <SearchPanel
                             messages={{ searchPlaceholder: "Buscar..." }}
                           />
