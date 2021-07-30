@@ -56,7 +56,8 @@ import {
   getVentasAllCentros,
   getVentasByCentroFilter,
   getCentros,
-  getVentasByCentro
+  getVentasByCentro,
+  getVentasByCentroNombre
 } from "../../graphql";
 
 const Layout = ({
@@ -77,12 +78,21 @@ const Layout = ({
   const filterRowMessages = {
     filterPlaceholder: "Filtrar...",
   };
-  const [filterRows, setFilterRows] = useState(0);
+  const [filterRows, setFilterRows] = useState([]);
+
+  
+  
   const [count, setCount] = useState(null);
   const [pageSizes] = React.useState([5, 10, 15]);
+  const [filtersApplied, setFiltersApplied] = useState([])
+
   // SORTING DE FECHAS
   const [integratedSortingColumnExtensions] = useState([
     { columnName: "fecha_venta", compare: compareDates },
+  ]);
+
+  const [tableColumnExtensions] = useState([
+    { columnName: "numero_serie", width: '210px' },
   ]);
 
   // FILTRO COLUMNA
@@ -134,9 +144,11 @@ const Layout = ({
     ) {
       filter = columns
         .reduce((acc, { name }) => {
+    
+     
           if (name === "id") {
-            console.log("id");
-            //acc.push(`{"${name}": {"_eq": "${searchValue}"}}`);
+        
+            acc.push(`{"${name}": {"_eq": "${searchValue}"}}`);
           } else if (name === "estado") {
             acc.push(
               `{"estado_venta": {"nombre": {"_ilike": "%${searchValue}%"}}}`
@@ -156,7 +168,7 @@ const Layout = ({
       .reduce((acc, { name }) => {
         if (name === "id") {
           /* console.log("id"); */
-          //acc.push(`{"${name}": {"_eq": "${searchValue}"}}`);
+          acc.push(`{"${name}": {"_eq": "${searchValue}"}}`);
         } else if (name === "estado") {
           acc.push(
             `{"estado_venta": {"nombre": {"_ilike": "%${searchValue}%"}}}`
@@ -174,7 +186,7 @@ const Layout = ({
 
   const loadData = (excelExport = false) => {
     const queryString = getQueryString();
-    console.log(JSON.parse(queryString));
+
     let limit = excelExport ? 10000 : 500;
     if (
       (queryString && excelExport) ||
@@ -196,6 +208,8 @@ const Layout = ({
         .then((res) => {
           const results = setEstadoName(res.data.ventas_bricomart);
           if (!excelExport) {
+       
+            
             setRows(results);
             setLastQuery(queryString);
           } else {
@@ -206,6 +220,68 @@ const Layout = ({
       if (!excelExport) setLastQuery(queryString);
     }
   };
+
+  const loadDataFilter = () => {
+    let centros = []
+    let results = []
+     filtersApplied.forEach((elemt)=>{
+      if (elemt.columnName === "centro") {
+        
+        
+       return centros = elemt.value
+      }
+    })
+    if (centros.length == 1) {
+      client
+        .query({
+          query:
+          getVentasByCentroNombre,
+          fetchPolicy: "no-cache",
+          variables: {
+
+            centro: centros.toString(),
+          },
+        })
+        .then((res) => {
+         setEstadoName(res.data.ventas_bricomart);
+         setRows(res.data.ventas_bricomart)
+         results = res.data.ventas_bricomart
+         
+         
+        }).catch((error)=> console.log(error));
+    }else if(centros.length > 1){
+      for (let i = 0; i < centros.length; i++) {
+        client
+        .query({
+          query:
+          getVentasByCentroNombre,
+          fetchPolicy: "no-cache",
+          variables: {
+
+            centro: centros[i].toString(),
+          },
+        })
+        .then((res) => {
+        let total = res.data.ventas_bricomart
+        setEstadoName(total);
+         total.forEach(element => {
+           results.push(element)
+         });
+         
+        }).catch((error)=> console.log(error));
+        
+      }
+     
+        setTimeout(() => {
+          setRows(results)
+          
+        }, 500);
+       
+    }
+ 
+      
+    }
+  
 
   const dataCountFilter = () => {
     const queryString = getQueryString();
@@ -255,6 +331,7 @@ const Layout = ({
 
 
   const [centros, setCentros] = useState([]);
+  const [estados, setEstados] = useState([]);
   const fetchCentros = useCallback(async () => {
     let results = [];
     await client
@@ -263,7 +340,7 @@ const Layout = ({
         fetchPolicy: "no-cache",
       })
       .then((res) => {
-        console.log(res.data.getCentroProductor);
+   
         for (let centro of res.data.getCentroProductor) {
           results.push(centro.DENOMINACION);
         }
@@ -271,10 +348,29 @@ const Layout = ({
     setCentros(results);
   }, [client, getCentros]);
 
+  const fetchEstados = useCallback(async () => {
+    let results = [];
+    await client
+      .query({
+        query: getVentasAllCentros,
+        fetchPolicy: "no-cache",
+      })
+      .then((res) => {
+    
+        for (let estado of res.data.ventas_bricomart) {
+          if (estado.estado_venta != null) {
+            results.push(estado.estado_venta.nombre);
+          }
+          results = [...new Set(results)];
+        }
+      });
+    setEstados(results);
+  }, [client, getVentasAllCentros]);
+
   useEffect(() => {
     dataCount()
     fetchCentros();
-
+    fetchEstados()
   }, []);
 
   useEffect(() => {
@@ -289,6 +385,13 @@ const Layout = ({
       fetchVentas();
     }
   }, [searchValue]);
+
+  useEffect(()=>{
+    if (filtersApplied) {
+      loadDataFilter()
+    }
+    
+  }, [filtersApplied])
 
   return (
     <div>
@@ -313,8 +416,15 @@ const Layout = ({
                           <IntegratedPaging />
                           <SearchState onValueChange={setSearchValue} />
                           <SortingState />
-                          <FilteringState defaultFilters={[]} />
-                          <RowDetailState />
+                          <FilteringState filters={filtersApplied} onFiltersChange={(filter) => setFiltersApplied(filter)}/>
+                                                {/* <EditingState
+                                                    onCommitChanges={commitChanges}
+                                                /> */}
+                                                <RowDetailState
+                                                   // expandedRowIds={expandedRows}
+                                                />
+                         
+                          <SortingState/>
                           <IntegratedSorting
                             columnExtensions={integratedSortingColumnExtensions}
                           />
@@ -322,7 +432,7 @@ const Layout = ({
                             columnExtensions={filteringColumnExtensions}
                           />
                           {children}
-                          <VirtualTable />
+                          <VirtualTable columnExtensions={tableColumnExtensions} />
                           <TableHeaderRow showSortingControls />
                           <Toolbar />
                           {/* <TableColumnVisibility
@@ -332,7 +442,7 @@ const Layout = ({
                          {/*  <TableFilterRow
                             messages={filterRowMessages}
                             cellComponent={(props) => (
-                              <FilterCell {...props} centros={centros} />
+                              <FilterCell {...props} centros={centros} estados={estados} />
                             )}
                           /> */}
                           <SearchPanel
@@ -357,9 +467,9 @@ const Layout = ({
                           <Template name="root">
                             <TemplateConnector>
                               {({ rows: filteredRows }) => {
-                                console.log(filteredRows);
-
-                                setFilterRows(filteredRows.length);
+                              
+                                setFilterRows(filteredRows)
+                               
                                 return <TemplatePlaceholder />;
                               }}
                             </TemplateConnector>
@@ -371,7 +481,7 @@ const Layout = ({
 
                     </div>
                   </div>
-                  <p>Mostrando {filterRows} de {count} resultados</p>
+                  <p>Mostrando {filterRows.length} de {count} resultados</p>
                 </div>
               </section>
             </div>

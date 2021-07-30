@@ -10,7 +10,7 @@ import { client, getCentros } from "../../../components/graphql";
 import UnitsFilterCell from "./UnitsFiltersCell";
 
 const FilterCell = (props) => {
-  const { column, centros } = props;
+  const { column, centros, estados } = props;
   //const [centros, setCentros] = useState([]);
 
   /* const fetchCentros = useCallback(async () => {
@@ -37,7 +37,7 @@ const FilterCell = (props) => {
     case "centro":
       return <UnitsFilterCell centros={centros} {...props} />;
     case "estado":
-      return <UnitsFilterCell /* options={clientessel} */ {...props} />;
+      return <UnitsFilterCell estados={estados} {...props} />;
     default:
       return <TableFilterRow.Cell {...props} />;
   }
