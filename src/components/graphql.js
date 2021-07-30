@@ -120,6 +120,40 @@ export const getVentasByCentroFilter = gql`
   }
 `;
 
+export const getVentasByCentroNombre = gql `query ventas($centro: String!) {
+  ventas_bricomart(where: {centro: {_ilike: $centro}}) {
+    id
+    apellido1
+    apellido2
+    cantidad
+    centro
+    parteA_ruta
+    parteB_ruta
+    estado_venta {
+      nombre
+    }
+    estado_id
+    fecha_venta
+    localidad
+    marca
+    modelo
+    nif
+    nombre
+    nombre_via
+    numero
+    piso
+    puerta
+    codigo_postal
+    numero_serie
+    provincia
+    razon_social
+    referencia
+    tipo_gas
+    tipo_via
+    zona
+  }
+}`;
+
 export const getVentasAllCentros = gql`
   query ventas($fields: ventas_bricomart_bool_exp, $limit: Int) {
     ventas_bricomart(limit: $limit, where: $fields) {

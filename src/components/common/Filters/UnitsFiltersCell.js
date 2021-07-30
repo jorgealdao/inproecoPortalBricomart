@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect, useCallback } from "react";
 import * as PropTypes from "prop-types";
 import MultiSelect from "@khanacademy/react-multi-select";
 
+
 // context
 import { GlobalStateContext } from "../../../context/GlobalContext";
 
@@ -11,13 +12,16 @@ import useFilters from "../../../hooks/useFilters";
 // GRAPHQL
 import { client, getCentros } from "../../../components/graphql";
 
-const UnitsFilterCell = ({ onFilter, column, centros }) => {
-  console.log(centros);
+let clickedOptionCentro = [];
+let clickedOptionEstado = [];
+
+const UnitsFilterCell = ({ onFilter, column, centros, estados }) => {
+ 
   const { value, setValue } = useFilters();
   const { user } = useContext(GlobalStateContext);
   const context = useContext(GlobalStateContext);
   /* const [centros, setCentros] = useState([]); */
-  const [selected, setSelected] = useState([]);
+  /* const [selected, setSelected] = useState([]); */
 
   /* const fetchCentros = useCallback(async () => {
     let results = [];
@@ -40,9 +44,8 @@ const UnitsFilterCell = ({ onFilter, column, centros }) => {
   }, []); */
 
   //Variable global para las opciones de los checkbox seleccionadas
-  let clickedOption = [];
-  let clickedOptionCentro = [];
-  let clickedOptionZona = [];
+  
+  
   let clickedOptionResiduo = [];
   let centrosCliente = [];
   let clickedPendiente = {};
@@ -53,48 +56,77 @@ const UnitsFilterCell = ({ onFilter, column, centros }) => {
   //let centros = [];
   let residuos = [];
   let transportistas = [];
-  let estados = [];
+  
 
   let elems = [];
   let col = [];
   let data = [];
 
   //Dropdowns normales
-  if (column.name === "centro") {
+  /* if (column.name === "centro") {
     elems = centros ? centros : [];
     data = elems.map((elem) => {
       console.log(elem);
       return { label: elem, value: elem };
     });
-  }
+  } */
   //if (column.name === "estado") elems = estados ? estados : [];
 
   //Dropdowns dinámicos
   useEffect(() => {}, [centros]);
-
+  if (column.name === "centro") {
+    
+        elems=centros
+        data = elems.map(elem => { return {label: elem, value: elem}})
+   
   return (
     <th style={{ fontWeight: "normal" }}>
       <MultiSelect
-        selectAllLabel="Todos"
-        selectSomeItems="Seleccionar..."
-        options={data}
-        selected={clickedOption}
-        overrideStrings={{
-          selectSomeItems: "Seleccionar...",
-          search: "Buscar",
-          allItemsAreSelected: "Todos",
-        }}
-        onSelectedChanged={(selected) => {
-          console.log("selected", selected);
-          setSelected(selected);
-          // Actualizamos el valor seleccionado
-          clickedOption = selected;
-          onFilter(selected ? { value: selected } : null);
-        }}
-      />
+                    selectAllLabel="Todos"
+                    selectSomeItems="Seleccionar..."
+                    options={data}
+                    selected={clickedOptionCentro}
+                    overrideStrings={{"selectSomeItems": "Seleccionar...", "search":"Buscar", "allItemsAreSelected":"Todos"}}
+                    onSelectedChanged={selected =>{
+                    
+                        // Actualizamos el valor seleccionado              
+                        clickedOptionCentro = selected
+                       
+                        // Callback a filtrado
+                        onFilter(selected ? { value: selected } : null)
+                        
+                    }}
+                />
     </th>
   );
-};
+}
+if (column.name === "estado") {
+    
+  elems=estados
+  data = elems.map(elem => { return {label: elem, value: elem}})
+
+return (
+<th style={{ fontWeight: "normal" }}>
+<MultiSelect
+              selectAllLabel="Todos"
+              selectSomeItems="Seleccionar..."
+              options={data}
+              selected={clickedOptionEstado}
+              overrideStrings={{"selectSomeItems": "Seleccionar...", "search":"Buscar", "allItemsAreSelected":"Todos"}}
+              onSelectedChanged={selected =>{
+              
+                  // Actualizamos el valor seleccionado              
+                  clickedOptionEstado = selected
+                 
+                  // Callback a filtrado
+                  onFilter(selected ? { value: selected } : null)
+              }}
+          />
+</th>
+);
+}
+}
+;
 
 UnitsFilterCell.propTypes = {
   filter: PropTypes.shape({
