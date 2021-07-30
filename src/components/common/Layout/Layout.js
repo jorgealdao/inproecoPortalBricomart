@@ -91,6 +91,10 @@ const Layout = ({
     { columnName: "fecha_venta", compare: compareDates },
   ]);
 
+  const [tableColumnExtensions] = useState([
+    { columnName: "numero_serie", width: '210px' },
+  ]);
+
   // FILTRO COLUMNA
   const columnFilterMultiPredicate = (value, filter, row) => {
     if (!filter.value.length) return true;
@@ -428,7 +432,7 @@ const Layout = ({
                             columnExtensions={filteringColumnExtensions}
                           />
                           {children}
-                          <VirtualTable />
+                          <VirtualTable columnExtensions={tableColumnExtensions} />
                           <TableHeaderRow showSortingControls />
                           <Toolbar />
                           {/* <TableColumnVisibility
