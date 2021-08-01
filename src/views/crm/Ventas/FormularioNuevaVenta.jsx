@@ -52,6 +52,9 @@ const FormularioNuevaVenta = ({history}) => {
     const onDropA = useCallback((acceptedFiles) => {
         setNewFiles(newFiles.concat(acceptedFiles));
         let newFileNames = [];
+        // REVISAR FIX PARA AÑADIR ESTADO
+        setDatosForm({...datosForm, estado_id: 2})
+        
         acceptedFiles.forEach((file) => {
           newFileNames.push({
             NOMBRE: file.name,
@@ -68,6 +71,9 @@ const FormularioNuevaVenta = ({history}) => {
       const onDropB = useCallback((acceptedFiles) => {
         setNewFilesB(newFilesB.concat(acceptedFiles));
         let newFileNames = [];
+        // REVISAR FIX PARA AÑADIR ESTADO
+        setDatosForm({...datosForm, estado_id: 3})
+
         acceptedFiles.forEach((file) => {
           newFileNames.push({
             NOMBRE: file.name,
