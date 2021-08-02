@@ -148,7 +148,7 @@ const Layout = ({
      
           if (name === "id") {
         
-            acc.push(`{"${name}": {"_eq": "${searchValue}"}}`);
+            /* acc.push(`{"${name}": {"_eq": "${searchValue}"}}`); */
           } else if (name === "estado") {
             acc.push(
               `{"estado_venta": {"nombre": {"_ilike": "%${searchValue}%"}}}`
@@ -168,7 +168,7 @@ const Layout = ({
       .reduce((acc, { name }) => {
         if (name === "id") {
           /* console.log("id"); */
-          acc.push(`{"${name}": {"_eq": "${searchValue}"}}`);
+          /* acc.push(`{"${name}": {"_eq": "${searchValue}"}}`); */
         } else if (name === "estado") {
           acc.push(
             `{"estado_venta": {"nombre": {"_ilike": "%${searchValue}%"}}}`
