@@ -47,7 +47,7 @@ const RegistroVentas = () => {
                 query: getVentasAllCentros,
                 fetchPolicy: "no-cache",
                 variables: {
-                    limit: 2000,
+                    limit: 500,
                     fields: lastQuery
                   },
             })

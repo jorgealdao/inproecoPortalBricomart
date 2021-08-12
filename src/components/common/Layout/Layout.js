@@ -39,16 +39,18 @@ import saveAs from "file-saver";
 import MultiSelect from "@khanacademy/react-multi-select";
 
 // COMPONENTS
-import ExportExcel from "./../Export/ExportExcel";
-import Buttons from "./../Buttons/Buttons";
 import FilterCell from "../../common/Filters/FilterCell";
 import RowVentaActions from "../Icons/RowVentaActions";
+import ClearFilters from "../Filters/ClearFilters";
 
 // CONSTANTS
 import { compareDates } from "./../../constants";
 
 // CONTEXT
-import { GlobalDispatchContext } from "../../../context/GlobalContext";
+import {
+  GlobalStateContext,
+  GlobalDispatchContext,
+} from "../../../context/GlobalContext";
 
 // GRAPHQL
 import {
@@ -57,7 +59,7 @@ import {
   getVentasByCentroFilter,
   getCentros,
   getVentasByCentro,
-  getVentasByCentroNombre
+  getVentasByCentroNombre,
 } from "../../graphql";
 
 const Layout = ({
@@ -73,6 +75,7 @@ const Layout = ({
   lastQuery,
   setLastQuery,
 }) => {
+  const { filtersApplied } = useContext(GlobalStateContext);
   const dispatch = useContext(GlobalDispatchContext);
   const getRowId = (row) => row.id;
   const filterRowMessages = {
@@ -80,11 +83,9 @@ const Layout = ({
   };
   const [filterRows, setFilterRows] = useState([]);
 
-  
-  
   const [count, setCount] = useState(null);
   const [pageSizes] = React.useState([5, 10, 15]);
-  const [filtersApplied, setFiltersApplied] = useState([])
+  /* const [filtersApplied, setFiltersApplied] = useState([]); */
 
   // SORTING DE FECHAS
   const [integratedSortingColumnExtensions] = useState([
@@ -92,7 +93,7 @@ const Layout = ({
   ]);
 
   const [tableColumnExtensions] = useState([
-    { columnName: "numero_serie", width: '210px' },
+    { columnName: "numero_serie", width: "210px" },
   ]);
 
   // FILTRO COLUMNA
@@ -101,7 +102,6 @@ const Layout = ({
     for (let i = 0; i < filter.value.length; i++) {
       if (value === filter.value[i]) return true;
     }
-
 
     return IntegratedFiltering.defaultPredicate(value, filter, row);
   };
@@ -144,11 +144,8 @@ const Layout = ({
     ) {
       filter = columns
         .reduce((acc, { name }) => {
-    
-     
           if (name === "id") {
-        
-            acc.push(`{"${name}": {"_eq": "${searchValue}"}}`);
+            /* acc.push(`{"${name}": {"_eq": "${searchValue}"}}`); */
           } else if (name === "estado") {
             acc.push(
               `{"estado_venta": {"nombre": {"_ilike": "%${searchValue}%"}}}`
@@ -185,8 +182,9 @@ const Layout = ({
   };
 
   const loadData = (excelExport = false) => {
-    const queryString = getQueryString();
-
+    //const queryString = getQueryString();
+    const queryString = loadDataFilter();
+    console.log(queryString);
     let limit = excelExport ? 10000 : 500;
     if (
       (queryString && excelExport) ||
@@ -196,7 +194,7 @@ const Layout = ({
         .query({
           query:
             user.rolDesc !== "BRICOMART_CENTRO" &&
-              user.rolDesc !== "BRICOMART_INPROECO_CENTRO"
+            user.rolDesc !== "BRICOMART_INPROECO_CENTRO"
               ? getVentasAllCentros
               : getVentasByCentroFilter,
           fetchPolicy: "no-cache",
@@ -208,8 +206,6 @@ const Layout = ({
         .then((res) => {
           const results = setEstadoName(res.data.ventas_bricomart);
           if (!excelExport) {
-       
-            
             setRows(results);
             setLastQuery(queryString);
           } else {
@@ -222,66 +218,46 @@ const Layout = ({
   };
 
   const loadDataFilter = () => {
-    let centros = []
-    let results = []
-     filtersApplied.forEach((elemt)=>{
-      if (elemt.columnName === "centro") {
-        
-        
-       return centros = elemt.value
-      }
-    })
-    if (centros.length == 1) {
-      client
-        .query({
-          query:
-          getVentasByCentroNombre,
-          fetchPolicy: "no-cache",
-          variables: {
+    let filter = filtersApplied
+      .reduce((acc, { columnName, value }) => {
+        console.log(acc, columnName, value);
 
-            centro: centros.toString(),
-          },
-        })
-        .then((res) => {
-         setEstadoName(res.data.ventas_bricomart);
-         setRows(res.data.ventas_bricomart)
-         results = res.data.ventas_bricomart
-         
-         
-        }).catch((error)=> console.log(error));
-    }else if(centros.length > 1){
-      for (let i = 0; i < centros.length; i++) {
-        client
-        .query({
-          query:
-          getVentasByCentroNombre,
-          fetchPolicy: "no-cache",
-          variables: {
+        if (columnName === "centro") {
+          let options = [];
+          if (value.length > 0) {
+            for (let i = 0; i < value.length; i++) {
+              options.push(`{"${columnName}": {"_eq": "${value[i]}"}}`);
+            }
+            console.log(options);
+            acc.push(`{"_or":[${options}]}`);
+          }
+        } else if (columnName === "estado") {
+          let options = [];
+          if (value.length > 0) {
+            for (let i = 0; i < value.length; i++) {
+              options.push(
+                `{"estado_venta": {"nombre": {"_eq": "${value[i]}"}}}`
+              );
+            }
+            console.log(options);
+            acc.push(`{"_or":[${options}]}`);
+          }
+        } else if (columnName === "id") {
+          acc.push(`{"${columnName}": {"_eq": "${parseInt(value)}"}}`);
+        } else {
+          acc.push(`{"${columnName}": {"_ilike": "%${value}%"}}`);
+        }
+        return acc;
+      }, [])
+      .join(",");
 
-            centro: centros[i].toString(),
-          },
-        })
-        .then((res) => {
-        let total = res.data.ventas_bricomart
-        setEstadoName(total);
-         total.forEach(element => {
-           results.push(element)
-         });
-         
-        }).catch((error)=> console.log(error));
-        
-      }
-     
-        setTimeout(() => {
-          setRows(results)
-          
-        }, 500);
-       
+    if (filtersApplied.length > 1) {
+      filter = `${filter}`;
+      console.log(filter);
     }
- 
-      
-    }
-  
+    console.log(filter);
+    return `{"_and":[${filter}]}`;
+  };
 
   const dataCountFilter = () => {
     const queryString = getQueryString();
@@ -289,46 +265,38 @@ const Layout = ({
       .query({
         query:
           user.rolDesc !== "BRICOMART_CENTRO" &&
-            user.rolDesc !== "BRICOMART_INPROECO_CENTRO"
+          user.rolDesc !== "BRICOMART_INPROECO_CENTRO"
             ? getVentasAllCentros
             : getVentasByCentro,
         fetchPolicy: "no-cache",
         variables: {
-
           fields: JSON.parse(queryString),
         },
       })
       .then((res) => {
         const results = res.data.ventas_bricomart.length;
-        setCount(results)
-
+        setCount(results);
       });
-
-  }
+  };
 
   const dataCount = () => {
     client
       .query({
         query:
           user.rolDesc !== "BRICOMART_CENTRO" &&
-            user.rolDesc !== "BRICOMART_INPROECO_CENTRO"
+          user.rolDesc !== "BRICOMART_INPROECO_CENTRO"
             ? getVentasAllCentros
             : getVentasByCentro,
         fetchPolicy: "no-cache",
         variables: {
-
           fields: lastQuery,
         },
       })
       .then((res) => {
         const results = res.data.ventas_bricomart.length;
-        setCount(results)
-
+        setCount(results);
       });
-
-  }
-
-
+  };
 
   const [centros, setCentros] = useState([]);
   const [estados, setEstados] = useState([]);
@@ -340,7 +308,6 @@ const Layout = ({
         fetchPolicy: "no-cache",
       })
       .then((res) => {
-   
         for (let centro of res.data.getCentroProductor) {
           results.push(centro.DENOMINACION);
         }
@@ -356,7 +323,6 @@ const Layout = ({
         fetchPolicy: "no-cache",
       })
       .then((res) => {
-    
         for (let estado of res.data.ventas_bricomart) {
           if (estado.estado_venta != null) {
             results.push(estado.estado_venta.nombre);
@@ -368,14 +334,14 @@ const Layout = ({
   }, [client, getVentasAllCentros]);
 
   useEffect(() => {
-    dataCount()
+    dataCount();
     fetchCentros();
-    fetchEstados()
+    fetchEstados();
   }, []);
 
-  useEffect(() => {
-    dataCountFilter()
-  }, [getQueryString])
+  /* useEffect(() => {
+    dataCountFilter();
+  }, [getQueryString]); */
 
   useEffect(() => {
     dispatch({ type: "SET_LOAD_VENTAS", payload: { loadVentas: loadData } });
@@ -386,12 +352,15 @@ const Layout = ({
     }
   }, [searchValue]);
 
-  useEffect(()=>{
-    if (filtersApplied) {
-      loadDataFilter()
+  useEffect(() => {
+    if (filtersApplied.length > 0) {
+      //loadDataFilter();
+      console.log(filtersApplied);
+      loadData();
+    } else {
+      fetchVentas();
     }
-    
-  }, [filtersApplied])
+  }, [filtersApplied]);
 
   return (
     <div>
@@ -413,38 +382,41 @@ const Layout = ({
                       ) : (
                         <Grid rows={rows} columns={columns} getRowId={getRowId}>
                           <PagingState defaultCurrentPage={0} pageSize={10} />
-                          <IntegratedPaging />
                           <SearchState onValueChange={setSearchValue} />
                           <SortingState />
-                          <FilteringState filters={filtersApplied} onFiltersChange={(filter) => setFiltersApplied(filter)}/>
-                                                {/* <EditingState
-                                                    onCommitChanges={commitChanges}
-                                                /> */}
-                                                <RowDetailState
-                                                   // expandedRowIds={expandedRows}
-                                                />
-                         
-                          <SortingState/>
+                          <FilteringState
+                            filters={filtersApplied}
+                            onFiltersChange={(filter) => {
+                              dispatch({
+                                type: "SET_FILTERS_APPLIED",
+                                payload: { filtersApplied: filter },
+                              });
+                            }}
+                          />
+                          <RowDetailState />
                           <IntegratedSorting
                             columnExtensions={integratedSortingColumnExtensions}
                           />
                           <IntegratedFiltering
                             columnExtensions={filteringColumnExtensions}
                           />
+                          <IntegratedPaging />
                           {children}
-                          <VirtualTable columnExtensions={tableColumnExtensions} />
+                          <VirtualTable
+                            columnExtensions={tableColumnExtensions}
+                          />
                           <TableHeaderRow showSortingControls />
                           <Toolbar />
-                          {/* <TableColumnVisibility
-                            hiddenColumnNames={hiddenColumnsNames}
-                          />
-                          */}
-                         {/*  <TableFilterRow
+                          <TableFilterRow
                             messages={filterRowMessages}
                             cellComponent={(props) => (
-                              <FilterCell {...props} centros={centros} estados={estados} />
+                              <FilterCell
+                                {...props}
+                                centros={centros}
+                                estados={estados}
+                              />
                             )}
-                          /> */}
+                          />
                           <SearchPanel
                             messages={{ searchPlaceholder: "Buscar..." }}
                           />
@@ -467,9 +439,8 @@ const Layout = ({
                           <Template name="root">
                             <TemplateConnector>
                               {({ rows: filteredRows }) => {
-                              
-                                setFilterRows(filteredRows)
-                               
+                                setFilterRows(filteredRows);
+
                                 return <TemplatePlaceholder />;
                               }}
                             </TemplateConnector>
@@ -478,10 +449,12 @@ const Layout = ({
                           <PagingPanel />
                         </Grid>
                       )}
-
                     </div>
+                    <ClearFilters />
                   </div>
-                  <p>Mostrando {filterRows.length} de {count} resultados</p>
+                  <p>
+                    Mostrando {filterRows.length} de {count} resultados
+                  </p>
                 </div>
               </section>
             </div>
