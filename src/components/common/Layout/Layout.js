@@ -62,6 +62,7 @@ import {
   getVentasByCentroNombre,
 } from "../../graphql";
 
+
 const Layout = ({
   title,
   rows,
@@ -76,13 +77,14 @@ const Layout = ({
   setLastQuery,
 }) => {
   const { filtersApplied } = useContext(GlobalStateContext);
+ 
   const dispatch = useContext(GlobalDispatchContext);
   const getRowId = (row) => row.id;
   const filterRowMessages = {
     filterPlaceholder: "Filtrar...",
   };
   const [filterRows, setFilterRows] = useState([]);
-
+  
   const [count, setCount] = useState(null);
   const [pageSizes] = React.useState([5, 10, 15]);
   /* const [filtersApplied, setFiltersApplied] = useState([]); */
@@ -95,7 +97,8 @@ const Layout = ({
   const [tableColumnExtensions] = useState([
     { columnName: "numero_serie", width: "210px" },
   ]);
-
+  
+  
   // FILTRO COLUMNA
   const columnFilterMultiPredicate = (value, filter, row) => {
     if (!filter.value.length) return true;
@@ -260,7 +263,7 @@ const Layout = ({
   };
 
   const dataCountFilter = () => {
-    const queryString = getQueryString();
+    const queryString = loadDataFilter();
     client
       .query({
         query:
@@ -312,7 +315,7 @@ const Layout = ({
           results.push(centro.DENOMINACION);
         }
       });
-    setCentros(results);
+    dispatch({type : "SET_CENTROS", payload: {centros: results}})
   }, [client, getCentros]);
 
   const fetchEstados = useCallback(async () => {
@@ -330,7 +333,7 @@ const Layout = ({
           results = [...new Set(results)];
         }
       });
-    setEstados(results);
+      dispatch({type : "SET_ESTADOS", payload: {estados: results}})
   }, [client, getVentasAllCentros]);
 
   useEffect(() => {
@@ -339,9 +342,9 @@ const Layout = ({
     fetchEstados();
   }, []);
 
-  /* useEffect(() => {
+  useEffect(() => {
     dataCountFilter();
-  }, [getQueryString]); */
+  }, [loadDataFilter]);
 
   useEffect(() => {
     dispatch({ type: "SET_LOAD_VENTAS", payload: { loadVentas: loadData } });
@@ -362,6 +365,7 @@ const Layout = ({
     }
   }, [filtersApplied]);
 
+ 
   return (
     <div>
       <div className="content">
@@ -409,13 +413,7 @@ const Layout = ({
                           <Toolbar />
                           <TableFilterRow
                             messages={filterRowMessages}
-                            cellComponent={(props) => (
-                              <FilterCell
-                                {...props}
-                                centros={centros}
-                                estados={estados}
-                              />
-                            )}
+                            cellComponent={FilterCell}
                           />
                           <SearchPanel
                             messages={{ searchPlaceholder: "Buscar..." }}

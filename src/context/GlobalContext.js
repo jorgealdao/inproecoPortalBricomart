@@ -17,6 +17,8 @@ const initialState = {
   filtersApplied: [],
   clickedOptionCentro: [],
   clickedOptionEstado: [],
+  centros: [],
+  estados: []
 };
 
 const reducer = (state, action) => {
@@ -71,6 +73,16 @@ const reducer = (state, action) => {
         ...state,
         clickedOptionEstado: action.payload.clickedOptionEstado,
       };
+      case "SET_CENTROS":
+      return {
+        ...state,
+        centros: action.payload.centros,
+      };
+      case "SET_ESTADOS":
+      return {
+        ...state,
+        estados: action.payload.estados,
+      };
     case "RESET": {
       return initialState;
     }
@@ -101,6 +113,8 @@ const init = () => {
       filtersApplied: [],
       clickedOptionCentro: [],
       clickedOptionEstado: [],
+      centros: [],
+      estados: []
     };
   } else {
     return initialState;
