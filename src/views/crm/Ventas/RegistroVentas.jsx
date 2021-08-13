@@ -26,17 +26,19 @@ const RegistroVentas = () => {
     }
 
     const fetchVentasRoleCentro = useCallback(() => {
+        let centro = `{ "centro_id": { "_eq": "${centroId}" } }`
         client
             .query({
                 query: getVentasByCentro,
                 fetchPolicy: "no-cache",
                 variables: {
                     limit: 500,
-                    centroId: centroId
+                    fields: JSON.parse(centro)
+                    /* centroId: centroId */
                 }
             })
             .then(res => {
-                //console.log(res)
+                /* console.log(res.data.ventas_bricomart.length) */
                 setVentas(setEstadoName(res.data.ventas_bricomart))
             })
     }, [client, getVentasByCentro])

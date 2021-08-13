@@ -59,9 +59,8 @@ import {
   getVentasByCentroFilter,
   getCentros,
   getVentasByCentro,
-  getVentasByCentroNombre,
+  getCentroName,
 } from "../../graphql";
-
 
 const Layout = ({
   title,
@@ -77,14 +76,14 @@ const Layout = ({
   setLastQuery,
 }) => {
   const { filtersApplied } = useContext(GlobalStateContext);
- 
+
   const dispatch = useContext(GlobalDispatchContext);
   const getRowId = (row) => row.id;
   const filterRowMessages = {
     filterPlaceholder: "Filtrar...",
   };
   const [filterRows, setFilterRows] = useState([]);
-  
+
   const [count, setCount] = useState(null);
   const [pageSizes] = React.useState([5, 10, 15]);
   /* const [filtersApplied, setFiltersApplied] = useState([]); */
@@ -97,8 +96,7 @@ const Layout = ({
   const [tableColumnExtensions] = useState([
     { columnName: "numero_serie", width: "210px" },
   ]);
-  
-  
+
   // FILTRO COLUMNA
   const columnFilterMultiPredicate = (value, filter, row) => {
     if (!filter.value.length) return true;
@@ -112,6 +110,10 @@ const Layout = ({
   const [filteringColumnExtensions, setFilteringColumnExtensions] = useState([
     { columnName: "centro", predicate: columnFilterMultiPredicate },
     { columnName: "estado", predicate: columnFilterMultiPredicate },
+  ]);
+
+  const [filteringStateColumnExtensions] = useState([
+    { columnName: "centro", filteringEnabled: false },
   ]);
 
   // EXPORT EXCEL
@@ -181,13 +183,13 @@ const Layout = ({
     if (columns.length > 1) {
       filter = `${filter}`;
     }
+    console.log();
     return `{"_and":[{"centro_id":{"_eq":"${user.centroId}"}}, {"_or":[${filter}]}]}`;
   };
 
   const loadData = (excelExport = false) => {
     //const queryString = getQueryString();
     const queryString = loadDataFilter();
-    console.log(queryString);
     let limit = excelExport ? 10000 : 500;
     if (
       (queryString && excelExport) ||
@@ -218,13 +220,12 @@ const Layout = ({
         });
       if (!excelExport) setLastQuery(queryString);
     }
+    console.log(lastQuery);
   };
 
   const loadDataFilter = () => {
     let filter = filtersApplied
       .reduce((acc, { columnName, value }) => {
-        console.log(acc, columnName, value);
-
         if (columnName === "centro") {
           let options = [];
           if (value.length > 0) {
@@ -256,14 +257,24 @@ const Layout = ({
 
     if (filtersApplied.length > 1) {
       filter = `${filter}`;
-      console.log(filter);
     }
-    console.log(filter);
-    return `{"_and":[${filter}]}`;
+
+    if (
+      user.rolDesc !== "BRICOMART_CENTRO" &&
+      user.rolDesc !== "BRICOMART_INPROECO_CENTRO"
+    )
+      return `{"_and":[${filter}]}`;
+
+    if (filter === "") {
+      return `{"_and":[{"centro_id":{"_eq":"${user.centroId}"}}]}`;
+    }
+
+    return `{"_and":[{"centro_id":{"_eq":"${user.centroId}"}}, ${filter}]}`;
   };
 
   const dataCountFilter = () => {
     const queryString = loadDataFilter();
+    console.log(queryString);
     client
       .query({
         query:
@@ -283,6 +294,9 @@ const Layout = ({
   };
 
   const dataCount = () => {
+    let centro = `{ "centro_id": { "_eq": "${user.centroId}" } }`;
+    console.log(lastQuery);
+    const queryString = loadDataFilter();
     client
       .query({
         query:
@@ -291,9 +305,15 @@ const Layout = ({
             ? getVentasAllCentros
             : getVentasByCentro,
         fetchPolicy: "no-cache",
-        variables: {
-          fields: lastQuery,
-        },
+        variables:
+          user.rolDesc !== "BRICOMART_CENTRO" &&
+          user.rolDesc !== "BRICOMART_INPROECO_CENTRO"
+            ? {
+                fields: JSON.parse(queryString),
+              }
+            : {
+                fields: JSON.parse(centro),
+              },
       })
       .then((res) => {
         const results = res.data.ventas_bricomart.length;
@@ -301,21 +321,36 @@ const Layout = ({
       });
   };
 
-  const [centros, setCentros] = useState([]);
-  const [estados, setEstados] = useState([]);
   const fetchCentros = useCallback(async () => {
     let results = [];
-    await client
-      .query({
-        query: getCentros,
-        fetchPolicy: "no-cache",
-      })
-      .then((res) => {
-        for (let centro of res.data.getCentroProductor) {
-          results.push(centro.DENOMINACION);
-        }
-      });
-    dispatch({type : "SET_CENTROS", payload: {centros: results}})
+    if (
+      user.rolDesc !== "BRICOMART_CENTRO" &&
+      user.rolDesc !== "BRICOMART_INPROECO_CENTRO"
+    ) {
+      await client
+        .query({
+          query: getCentros,
+          fetchPolicy: "no-cache",
+        })
+        .then((res) => {
+          for (let centro of res.data.getCentroProductor) {
+            results.push(centro.DENOMINACION);
+          }
+        });
+    } else {
+      await client
+        .query({
+          query: getCentroName,
+          fetchPolicy: "no-cache",
+          variables: {
+            centroId: user.centroId,
+          },
+        })
+        .then((res) => {
+          results.push(res.data.getCentrosProductoresView[0].nombre);
+        });
+    }
+    dispatch({ type: "SET_CENTROS", payload: { centros: results } });
   }, [client, getCentros]);
 
   const fetchEstados = useCallback(async () => {
@@ -333,7 +368,7 @@ const Layout = ({
           results = [...new Set(results)];
         }
       });
-      dispatch({type : "SET_ESTADOS", payload: {estados: results}})
+    dispatch({ type: "SET_ESTADOS", payload: { estados: results } });
   }, [client, getVentasAllCentros]);
 
   useEffect(() => {
@@ -343,7 +378,9 @@ const Layout = ({
   }, []);
 
   useEffect(() => {
-    dataCountFilter();
+    if (filtersApplied.length > 0) {
+      dataCountFilter();
+    }
   }, [loadDataFilter]);
 
   useEffect(() => {
@@ -357,15 +394,13 @@ const Layout = ({
 
   useEffect(() => {
     if (filtersApplied.length > 0) {
-      //loadDataFilter();
-      console.log(filtersApplied);
       loadData();
     } else {
       fetchVentas();
+      dataCount();
     }
   }, [filtersApplied]);
 
- 
   return (
     <div>
       <div className="content">
@@ -396,6 +431,13 @@ const Layout = ({
                                 payload: { filtersApplied: filter },
                               });
                             }}
+                            columnExtensions={filteringStateColumnExtensions}
+                            /* columnExtensions={
+                              user.rolDesc !== "BRICOMART_CENTRO" &&
+                              user.rolDesc !== "BRICOMART_INPROECO_CENTRO"
+                                ? undefined
+                                : filteringStateColumnExtensions
+                            } */
                           />
                           <RowDetailState />
                           <IntegratedSorting

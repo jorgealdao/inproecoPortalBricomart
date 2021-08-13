@@ -9,7 +9,7 @@ import {
 } from "../../../context/GlobalContext";
 
 const UnitsFilterCell = ({ onFilter, column, centros, estados }) => {
-  const { clickedOptionCentro, clickedOptionEstado } =
+  const { clickedOptionCentro, clickedOptionEstado, user } =
     useContext(GlobalStateContext);
   const dispatch = useContext(GlobalDispatchContext);
 
@@ -27,6 +27,12 @@ const UnitsFilterCell = ({ onFilter, column, centros, estados }) => {
     return (
       <th style={{ fontWeight: "normal" }}>
         <MultiSelect
+          disabled={
+            user.rolDesc !== "BRICOMART_CENTRO" &&
+            user.rolDesc !== "BRICOMART_INPROECO_CENTRO"
+              ? false
+              : true
+          }
           selectAllLabel="Todos"
           selectSomeItems="Seleccionar..."
           options={data}

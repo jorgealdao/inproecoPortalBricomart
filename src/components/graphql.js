@@ -49,8 +49,8 @@ export const getCentros = gql`
 
 // queries
 export const getVentasByCentro = gql`
-  query ventas($centroId: String!, $limit: Int) {
-    ventas_bricomart(limit: $limit, where: { centro_id: { _eq: $centroId } }) {
+  query ventas($fields: ventas_bricomart_bool_exp, $limit: Int) {
+    ventas_bricomart(limit: $limit, where: $fields) {
       id
       apellido1
       apellido2
