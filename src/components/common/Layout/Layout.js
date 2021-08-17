@@ -481,8 +481,8 @@ const Layout = ({
                           <PagingPanel />
                         </Grid>
                       )}
+                      <ClearFilters />
                     </div>
-                    <ClearFilters />
                   </div>
                   <p>
                     Mostrando {filterRows.length} de {count} resultados

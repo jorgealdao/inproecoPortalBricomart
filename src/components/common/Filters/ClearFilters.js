@@ -23,7 +23,7 @@ const ClearFilters = () => {
   };
 
   return (
-    <Button color="primary" onClick={onClickClearFilters}>
+    <Button className="clearFilters" color="primary" onClick={onClickClearFilters}>
       Limpiar filtros
     </Button>
   );
