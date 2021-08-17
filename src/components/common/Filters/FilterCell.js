@@ -10,7 +10,7 @@ import { GlobalStateContext } from "../../../context/GlobalContext";
 
 const FilterCell = (props) => {
   const { column } = props;
-  const { centros, estados } = useContext(GlobalStateContext)
+  const { centros, estados } = useContext(GlobalStateContext);
 
   switch (column.name) {
     case "centro":

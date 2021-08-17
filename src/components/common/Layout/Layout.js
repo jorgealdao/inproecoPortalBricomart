@@ -36,7 +36,6 @@ import {
 import "@devexpress/dx-react-grid-bootstrap4/dist/dx-react-grid-bootstrap4.css";
 import { GridExporter } from "@devexpress/dx-react-grid-export";
 import saveAs from "file-saver";
-import MultiSelect from "@khanacademy/react-multi-select";
 
 // COMPONENTS
 import FilterCell from "../../common/Filters/FilterCell";
@@ -295,7 +294,6 @@ const Layout = ({
 
   const dataCount = () => {
     let centro = `{ "centro_id": { "_eq": "${user.centroId}" } }`;
-    console.log(lastQuery);
     const queryString = loadDataFilter();
     client
       .query({
@@ -432,12 +430,6 @@ const Layout = ({
                               });
                             }}
                             columnExtensions={filteringStateColumnExtensions}
-                            /* columnExtensions={
-                              user.rolDesc !== "BRICOMART_CENTRO" &&
-                              user.rolDesc !== "BRICOMART_INPROECO_CENTRO"
-                                ? undefined
-                                : filteringStateColumnExtensions
-                            } */
                           />
                           <RowDetailState />
                           <IntegratedSorting
