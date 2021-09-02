@@ -50,7 +50,7 @@ export const getCentros = gql`
 // queries
 export const getVentasByCentro = gql`
   query ventas($fields: ventas_bricomart_bool_exp, $limit: Int) {
-    ventas_bricomart(limit: $limit, where: $fields) {
+    ventas_bricomart(limit: $limit, where: $fields, order_by: { id: desc }) {
       id
       apellido1
       apellido2
@@ -158,7 +158,7 @@ export const getVentasByCentroNombre = gql`
 
 export const getVentasAllCentros = gql`
   query ventas($fields: ventas_bricomart_bool_exp, $limit: Int) {
-    ventas_bricomart(limit: $limit, where: $fields) {
+    ventas_bricomart(limit: $limit, where: $fields, order_by: { id: desc }) {
       id
       apellido1
       apellido2
